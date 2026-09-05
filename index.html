@@ -1,0 +1,693 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#071b2b">
+  <meta name="description" content="Fast multilingual converter for everyday and technical units.">
+  <title>Unit Converter | Apps & Games</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #061723;
+      --panel: rgba(12, 39, 56, .82);
+      --panel-2: #0e3045;
+      --line: rgba(151, 210, 229, .18);
+      --text: #f4fbff;
+      --muted: #9fc0d0;
+      --cyan: #4cd7e5;
+      --cyan-2: #25b5ce;
+      --lime: #c6ef68;
+      --shadow: 0 24px 70px rgba(0, 0, 0, .32);
+      --radius: 24px;
+    }
+
+    * { box-sizing: border-box; }
+    html { min-height: 100%; }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 12% 8%, rgba(38, 181, 206, .22), transparent 31rem),
+        radial-gradient(circle at 90% 92%, rgba(198, 239, 104, .10), transparent 30rem),
+        var(--bg);
+    }
+
+    button, input, select { font: inherit; }
+    button, select { cursor: pointer; }
+    button { -webkit-tap-highlight-color: transparent; }
+
+    .app {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: max(18px, env(safe-area-inset-top)) 0 max(40px, env(safe-area-inset-bottom));
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 16px;
+      min-height: 58px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-self: start;
+      gap: 11px;
+      min-width: 0;
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border: 1px solid rgba(76, 215, 229, .5);
+      border-radius: 13px;
+      color: var(--cyan);
+      background: linear-gradient(145deg, rgba(76,215,229,.18), rgba(76,215,229,.04));
+      box-shadow: inset 0 0 18px rgba(76,215,229,.09);
+    }
+
+    .brand-mark svg { width: 24px; height: 24px; }
+    .brand-name { font-weight: 750; letter-spacing: -.02em; white-space: nowrap; }
+    .brand-name small { display: block; margin-top: 1px; color: var(--muted); font-size: .72rem; font-weight: 550; letter-spacing: .05em; text-transform: uppercase; }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.25rem, 2.4vw, 1.8rem);
+      font-weight: 780;
+      letter-spacing: -.035em;
+      text-align: center;
+    }
+
+    .top-actions { display: flex; align-items: center; justify-self: end; gap: 9px; }
+    .icon-button, .language-select {
+      height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      color: var(--text);
+      background: rgba(14, 48, 69, .72);
+      box-shadow: 0 8px 22px rgba(0,0,0,.14);
+    }
+
+    .icon-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 0 13px;
+      font-weight: 700;
+    }
+
+    .icon-button svg { width: 19px; height: 19px; }
+    .language-select { padding: 0 33px 0 12px; min-width: 78px; }
+
+    .intro {
+      margin: 56px auto 25px;
+      text-align: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 11px;
+      color: var(--cyan);
+      font-size: .82rem;
+      font-weight: 800;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before, .eyebrow::after { content: ""; width: 24px; height: 1px; background: currentColor; opacity: .5; }
+    .intro h2 { margin: 0; font-size: clamp(2rem, 6vw, 4.7rem); line-height: .98; letter-spacing: -.065em; }
+    .intro p { margin: 16px auto 0; max-width: 590px; color: var(--muted); font-size: 1rem; line-height: 1.6; }
+
+    .category-strip {
+      display: flex;
+      gap: 9px;
+      margin: 0 -2px 18px;
+      padding: 2px 2px 10px;
+      overflow-x: auto;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(76,215,229,.35) transparent;
+    }
+
+    .category-button {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 44px;
+      padding: 0 15px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      background: rgba(11, 38, 54, .55);
+      transition: .18s ease;
+    }
+
+    .category-button:hover { color: var(--text); border-color: rgba(76,215,229,.4); transform: translateY(-1px); }
+    .category-button.active { color: #06212d; border-color: var(--cyan); background: var(--cyan); box-shadow: 0 8px 28px rgba(76,215,229,.2); }
+    .category-button .emoji { font-size: 1.05rem; }
+
+    .converter-shell {
+      position: relative;
+      padding: 1px;
+      border-radius: calc(var(--radius) + 1px);
+      background: linear-gradient(135deg, rgba(76,215,229,.5), rgba(151,210,229,.08) 45%, rgba(198,239,104,.25));
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .converter-shell::after {
+      content: "";
+      position: absolute;
+      width: 240px;
+      height: 240px;
+      right: -100px;
+      top: -150px;
+      border-radius: 50%;
+      background: rgba(76,215,229,.11);
+      filter: blur(12px);
+      pointer-events: none;
+    }
+
+    .converter-card { position: relative; z-index: 1; padding: 28px; border-radius: var(--radius); background: linear-gradient(145deg, rgba(12,39,56,.98), rgba(8,29,43,.98)); }
+    .card-heading { display: flex; align-items: start; justify-content: space-between; gap: 18px; margin-bottom: 22px; }
+    .card-heading h3 { margin: 0 0 7px; font-size: 1.35rem; letter-spacing: -.025em; }
+    .card-heading p { margin: 0; color: var(--muted); line-height: 1.45; }
+
+    .clear-button {
+      padding: 8px 12px;
+      border: 0;
+      border-radius: 10px;
+      color: var(--muted);
+      background: transparent;
+    }
+    .clear-button:hover { color: var(--text); background: rgba(255,255,255,.05); }
+
+    .conversion-row { display: grid; grid-template-columns: minmax(0, 1fr) 52px minmax(0, 1fr); gap: 14px; align-items: end; }
+    .unit-panel { min-width: 0; }
+    .field-label { display: block; margin: 0 0 8px 3px; color: var(--muted); font-size: .88rem; font-weight: 700; }
+    .value-wrap { position: relative; }
+
+    .value-input {
+      width: 100%;
+      height: 76px;
+      padding: 0 18px;
+      border: 1px solid rgba(151,210,229,.22);
+      border-radius: 17px 17px 0 0;
+      outline: none;
+      color: var(--text);
+      background: rgba(3, 19, 29, .65);
+      font-size: clamp(1.35rem, 3.5vw, 2.2rem);
+      font-weight: 720;
+      letter-spacing: -.03em;
+      transition: border-color .18s, box-shadow .18s;
+    }
+
+    .value-input:focus { border-color: var(--cyan); box-shadow: inset 0 0 0 1px var(--cyan), 0 0 0 4px rgba(76,215,229,.08); }
+    .result-input { color: var(--lime); }
+
+    .copy-button {
+      position: absolute;
+      top: 50%;
+      right: 13px;
+      transform: translateY(-50%);
+      display: grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      border: 0;
+      border-radius: 11px;
+      color: var(--muted);
+      background: rgba(255,255,255,.06);
+    }
+    .copy-button:hover { color: var(--cyan); background: rgba(76,215,229,.1); }
+    .copy-button svg { width: 19px; height: 19px; }
+
+    .unit-select {
+      width: 100%;
+      height: 54px;
+      padding: 0 42px 0 17px;
+      border: 1px solid rgba(151,210,229,.22);
+      border-top: 0;
+      border-radius: 0 0 17px 17px;
+      color: var(--text);
+      outline: none;
+      background: var(--panel-2);
+      font-weight: 650;
+    }
+
+    .swap-button {
+      display: grid;
+      place-items: center;
+      width: 52px;
+      height: 52px;
+      margin-bottom: 1px;
+      border: 1px solid rgba(76,215,229,.35);
+      border-radius: 16px;
+      color: var(--cyan);
+      background: rgba(76,215,229,.09);
+      transition: .2s ease;
+    }
+    .swap-button:hover { color: #06212d; background: var(--cyan); transform: rotate(180deg); }
+    .swap-button svg { width: 22px; height: 22px; }
+
+    .equation {
+      margin: 22px 0 0;
+      padding: 13px 16px;
+      border-left: 3px solid var(--lime);
+      border-radius: 0 10px 10px 0;
+      color: var(--muted);
+      background: rgba(198,239,104,.055);
+      line-height: 1.45;
+    }
+    .equation strong { color: var(--text); }
+
+    .quick-results { margin-top: 22px; }
+    .quick-results h3 { margin: 0 0 12px; font-size: 1rem; color: var(--muted); }
+    .results-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .result-chip { min-width: 0; padding: 14px 15px; border: 1px solid var(--line); border-radius: 14px; background: rgba(12,39,56,.56); }
+    .result-chip .result-number { display: block; overflow: hidden; color: var(--text); font-weight: 750; text-overflow: ellipsis; white-space: nowrap; }
+    .result-chip .result-unit { display: block; margin-top: 4px; color: var(--muted); font-size: .8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    dialog {
+      width: min(680px, calc(100% - 28px));
+      max-height: min(760px, calc(100vh - 34px));
+      padding: 0;
+      border: 1px solid rgba(76,215,229,.35);
+      border-radius: 22px;
+      color: var(--text);
+      background: #0a2739;
+      box-shadow: 0 40px 100px rgba(0,0,0,.58);
+      overflow: hidden;
+    }
+    dialog::backdrop { background: rgba(1,9,14,.78); backdrop-filter: blur(6px); }
+    .modal-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 20px 22px; border-bottom: 1px solid var(--line); }
+    .modal-head h2 { margin: 0; font-size: 1.3rem; }
+    .close-button { width: 38px; height: 38px; border: 0; border-radius: 11px; color: var(--text); background: rgba(255,255,255,.07); font-size: 1.35rem; }
+    .modal-body { padding: 22px; overflow-y: auto; max-height: calc(100vh - 130px); color: #d9edf5; line-height: 1.6; }
+    .modal-body p { margin: 0 0 16px; }
+    .donation-links { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 18px 0 22px; }
+    .donation-link { display: flex; align-items: center; justify-content: center; min-height: 46px; padding: 10px 14px; border-radius: 12px; color: #06212d; background: var(--cyan); font-weight: 800; text-decoration: none; }
+    .donation-link:last-child { background: var(--lime); }
+    .wallets { display: grid; gap: 8px; }
+    .wallet { padding: 11px 13px; border: 1px solid var(--line); border-radius: 12px; background: rgba(2,18,27,.5); }
+    .wallet strong { display: block; margin-bottom: 3px; color: var(--cyan); }
+    .wallet code { display: block; overflow-wrap: anywhere; color: #e7f5fb; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .83rem; }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: max(24px, env(safe-area-inset-bottom));
+      z-index: 10;
+      transform: translate(-50%, 20px);
+      padding: 11px 16px;
+      border: 1px solid rgba(76,215,229,.35);
+      border-radius: 999px;
+      color: var(--text);
+      background: #103b50;
+      box-shadow: 0 14px 34px rgba(0,0,0,.35);
+      opacity: 0;
+      pointer-events: none;
+      transition: .2s ease;
+    }
+    .toast.show { transform: translate(-50%, 0); opacity: 1; }
+
+    footer { margin-top: 26px; color: #789cad; font-size: .82rem; text-align: center; }
+
+    @media (max-width: 760px) {
+      .app { width: min(100% - 22px, 680px); }
+      header { grid-template-columns: 1fr auto; }
+      header h1 { display: none; }
+      .intro { margin-top: 36px; }
+      .intro h2 { font-size: clamp(2.2rem, 13vw, 3.7rem); }
+      .conversion-row { grid-template-columns: 1fr; gap: 10px; }
+      .swap-button { justify-self: center; margin: -2px 0; transform: rotate(90deg); }
+      .swap-button:hover { transform: rotate(270deg); }
+      .converter-card { padding: 20px 16px; }
+      .card-heading { margin-bottom: 18px; }
+      .results-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 460px) {
+      .app { width: min(100% - 16px, 430px); padding-top: 10px; }
+      .brand-mark { width: 38px; height: 38px; }
+      .brand-name { font-size: .9rem; }
+      .brand-name small { font-size: .61rem; }
+      .icon-button { width: 42px; padding: 0; }
+      .icon-button span { display: none; }
+      .language-select { height: 42px; min-width: 70px; padding-left: 9px; padding-right: 25px; }
+      .top-actions { gap: 6px; }
+      .intro { margin-top: 28px; }
+      .intro p { font-size: .93rem; }
+      .card-heading p { font-size: .9rem; }
+      .value-input { height: 69px; padding-right: 57px; }
+      .results-grid { grid-template-columns: 1fr; }
+      .donation-links { grid-template-columns: 1fr; }
+      .modal-body { padding: 18px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <a class="brand" href="https://appsandgames.org/" aria-label="Apps & Games">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6.5h16M4 12h10M4 17.5h16"/><circle cx="17" cy="12" r="2.5"/></svg>
+        </span>
+        <span class="brand-name">Apps &amp; Games<small data-i18n="brandTagline">Free online apps</small></span>
+      </a>
+      <h1 data-i18n="appTitle">Unit Converter</h1>
+      <div class="top-actions">
+        <button class="icon-button" id="infoButton" type="button" aria-haspopup="dialog">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 10.8v5.4M12 7.5h.01"/></svg>
+          <span data-i18n="info">Info</span>
+        </button>
+        <label>
+          <span class="sr-only" hidden data-i18n="language">Language</span>
+          <select class="language-select" id="languageSelect" aria-label="Language">
+            <option value="en">EN</option><option value="hr">HR</option><option value="de">DE</option><option value="it">IT</option><option value="es">ES</option>
+          </select>
+        </label>
+      </div>
+    </header>
+
+    <section class="intro">
+      <span class="eyebrow" data-i18n="instant">Instant conversion</span>
+      <h2 data-i18n="headline">Convert without limits.</h2>
+      <p data-i18n="subhead">Everyday and technical units in one fast, clear converter.</p>
+    </section>
+
+    <nav class="category-strip" id="categoryStrip" aria-label="Conversion categories"></nav>
+
+    <section class="converter-shell" aria-live="polite">
+      <div class="converter-card">
+        <div class="card-heading">
+          <div><h3 id="categoryTitle"></h3><p id="categoryNote"></p></div>
+          <button class="clear-button" id="clearButton" type="button" data-i18n="clear">Clear</button>
+        </div>
+
+        <div class="conversion-row">
+          <div class="unit-panel">
+            <label class="field-label" for="inputValue" data-i18n="from">From</label>
+            <input class="value-input" id="inputValue" type="text" inputmode="decimal" autocomplete="off" value="1">
+            <select class="unit-select" id="fromUnit" aria-label="From unit"></select>
+          </div>
+
+          <button class="swap-button" id="swapButton" type="button" aria-label="Swap units" title="Swap units">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m7 7 3-3m-3 3 3 3M7 7h10M17 17l-3-3m3 3-3 3M17 17H7"/></svg>
+          </button>
+
+          <div class="unit-panel">
+            <label class="field-label" for="outputValue" data-i18n="to">To</label>
+            <div class="value-wrap">
+              <input class="value-input result-input" id="outputValue" type="text" inputmode="decimal" autocomplete="off">
+              <button class="copy-button" id="copyButton" type="button" aria-label="Copy result" title="Copy result">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="8" width="11" height="11" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>
+              </button>
+            </div>
+            <select class="unit-select" id="toUnit" aria-label="To unit"></select>
+          </div>
+        </div>
+
+        <div class="equation" id="equation"></div>
+      </div>
+    </section>
+
+    <section class="quick-results">
+      <h3 data-i18n="alsoEquals">Also equals</h3>
+      <div class="results-grid" id="resultsGrid"></div>
+    </section>
+    <footer>© <span id="year"></span> Apps &amp; Games</footer>
+  </main>
+
+  <dialog id="infoDialog">
+    <div class="modal-head"><h2 data-i18n="infoTitle">Information / Donations</h2><button class="close-button" id="closeInfo" type="button" aria-label="Close">×</button></div>
+    <div class="modal-body">
+      <p data-i18n="donationFree">The application is free to use, but donations are welcome.</p>
+      <p data-i18n="donationPart">A part of the received donations will be forwarded to various charitable organizations.</p>
+      <p data-i18n="donationLargest">The largest part will be donated to institutions caring for children without adequate parental care.</p>
+      <p data-i18n="donationPrompt">You can make donations to:</p>
+      <div class="donation-links">
+        <a class="donation-link" href="https://www.paypal.com/ncp/payment/RU2CWCNVQ7XD6" target="_blank" rel="noopener">PayPal</a>
+        <a class="donation-link" href="https://buy.stripe.com/7sYeVd7Blfe89cm0k02kw00" target="_blank" rel="noopener" data-i18n="cardPayment">Card Payment (Stripe)</a>
+      </div>
+      <p><strong data-i18n="cryptoWallet">Crypto Wallet:</strong></p>
+      <div class="wallets">
+        <div class="wallet"><strong>BTC</strong><code>bc1qwlrxrh64peukga0fp59m9yg7gpf0yj8q7fxnsc</code></div>
+        <div class="wallet"><strong>ETH</strong><code>0xA99A52085c6725854daa46bb302041569c8bA4E3</code></div>
+        <div class="wallet"><strong>XRP</strong><code>rP43SsrkhPkxTsFohMAm32sAQg7vqwmDpr</code></div>
+        <div class="wallet"><strong>SOL</strong><code>8xkdVTEaDGuWu4aE3HpEx8r9Aux98JZbdsMiDQvJWBWR</code></div>
+        <div class="wallet"><strong>DOGE</strong><code>DGAT32ku8WmFaTDxCgVuRuVpUFmfdmD5Jb</code></div>
+        <div class="wallet"><strong>XLM</strong><code>GCYH4OD4I2GNRKFFOYROE3N3S2HCT5RXIML3TZV5DP3TLTLXPXQXIJZ3</code></div>
+        <div class="wallet"><strong>LTC</strong><code>LWtaFniqdYpv2xJtqo9WqDwCsQ2cW6PYWi</code></div>
+        <div class="wallet"><strong>RVN</strong><code>RAtXzKZyB3awfq2u2cK8YppC9kJamU5tPQ</code></div>
+      </div>
+    </div>
+  </dialog>
+  <div class="toast" id="toast" role="status"></div>
+
+  <script>
+    const translations = {
+      en: { appTitle:'Unit Converter', info:'Info', language:'Language', instant:'Instant conversion', headline:'Convert without limits.', subhead:'Everyday and technical units in one fast, clear converter.', from:'From', to:'To', clear:'Clear', alsoEquals:'Also equals', copied:'Result copied', invalid:'Enter a valid number', swap:'Swap units', copy:'Copy result', categories:{length:'Length',time:'Time',volume:'Volume',area:'Area',mass:'Mass',power:'Power',data:'Bits & Bytes',energy:'Energy',speed:'Speed',temperature:'Temperature',pressure:'Pressure',fuel:'Fuel consumption',frequency:'Frequency',angle:'Angle'}, notes:{power:'kW and horsepower measure power. kWh is available under Energy.',fuel:'Fuel economy uses inverse conversion; zero cannot be converted.'}},
+      hr: { appTitle:'Pretvarač jedinica', info:'Info', language:'Jezik', instant:'Trenutno pretvaranje', headline:'Pretvaraj bez granica.', subhead:'Svakodnevne i tehničke jedinice u jednom brzom i preglednom pretvaraču.', from:'Iz', to:'U', clear:'Obriši', alsoEquals:'Jednako je i', copied:'Rezultat je kopiran', invalid:'Unesite ispravan broj', swap:'Zamijeni jedinice', copy:'Kopiraj rezultat', categories:{length:'Dužina',time:'Vrijeme',volume:'Volumen',area:'Površina',mass:'Masa',power:'Snaga',data:'Bitovi i bajtovi',energy:'Energija',speed:'Brzina',temperature:'Temperatura',pressure:'Tlak',fuel:'Potrošnja goriva',frequency:'Frekvencija',angle:'Kut'}, notes:{power:'kW i konjske snage mjere snagu. kWh se nalazi pod Energija.',fuel:'Potrošnja goriva koristi obrnuti izračun; nula se ne može pretvoriti.'}},
+      de: { appTitle:'Einheitenumrechner', info:'Info', language:'Sprache', instant:'Sofortige Umrechnung', headline:'Grenzenlos umrechnen.', subhead:'Alltags- und technische Einheiten in einem schnellen, übersichtlichen Umrechner.', from:'Von', to:'In', clear:'Löschen', alsoEquals:'Entspricht auch', copied:'Ergebnis kopiert', invalid:'Gültige Zahl eingeben', swap:'Einheiten tauschen', copy:'Ergebnis kopieren', categories:{length:'Länge',time:'Zeit',volume:'Volumen',area:'Fläche',mass:'Masse',power:'Leistung',data:'Bits & Bytes',energy:'Energie',speed:'Geschwindigkeit',temperature:'Temperatur',pressure:'Druck',fuel:'Kraftstoffverbrauch',frequency:'Frequenz',angle:'Winkel'}, notes:{power:'kW und Pferdestärken messen Leistung. kWh finden Sie unter Energie.',fuel:'Der Kraftstoffverbrauch wird invers umgerechnet; Null ist nicht möglich.'}},
+      it: { appTitle:'Convertitore di unità', info:'Info', language:'Lingua', instant:'Conversione istantanea', headline:'Converti senza limiti.', subhead:'Unità quotidiane e tecniche in un convertitore rapido e chiaro.', from:'Da', to:'A', clear:'Cancella', alsoEquals:'Equivale anche a', copied:'Risultato copiato', invalid:'Inserisci un numero valido', swap:'Scambia unità', copy:'Copia risultato', categories:{length:'Lunghezza',time:'Tempo',volume:'Volume',area:'Area',mass:'Massa',power:'Potenza',data:'Bit e Byte',energy:'Energia',speed:'Velocità',temperature:'Temperatura',pressure:'Pressione',fuel:'Consumo carburante',frequency:'Frequenza',angle:'Angolo'}, notes:{power:'kW e cavalli misurano la potenza. I kWh sono nella categoria Energia.',fuel:'Il consumo usa una conversione inversa; zero non può essere convertito.'}},
+      es: { appTitle:'Conversor de unidades', info:'Info', language:'Idioma', instant:'Conversión instantánea', headline:'Convierte sin límites.', subhead:'Unidades cotidianas y técnicas en un conversor rápido y claro.', from:'De', to:'A', clear:'Borrar', alsoEquals:'También equivale a', copied:'Resultado copiado', invalid:'Introduce un número válido', swap:'Intercambiar unidades', copy:'Copiar resultado', categories:{length:'Longitud',time:'Tiempo',volume:'Volumen',area:'Área',mass:'Masa',power:'Potencia',data:'Bits y Bytes',energy:'Energía',speed:'Velocidad',temperature:'Temperatura',pressure:'Presión',fuel:'Consumo de combustible',frequency:'Frecuencia',angle:'Ángulo'}, notes:{power:'Los kW y los caballos miden potencia. Los kWh están en Energía.',fuel:'El consumo usa una conversión inversa; no se puede convertir cero.'}}
+    };
+
+    const extraTranslations = {
+      en:{brandTagline:'Free online apps',categoryNav:'Conversion categories',fromUnit:'From unit',toUnit:'To unit',close:'Close',infoTitle:'Information / Donations',donationFree:'The application is free to use, but donations are welcome.',donationPart:'A part of the received donations will be forwarded to various charitable organizations.',donationLargest:'The largest part will be donated to institutions caring for children without adequate parental care.',donationPrompt:'You can make donations to:',cardPayment:'Card Payment (Stripe)',cryptoWallet:'Crypto Wallet:'},
+      hr:{brandTagline:'Besplatne online aplikacije',categoryNav:'Kategorije pretvaranja',fromUnit:'Početna jedinica',toUnit:'Ciljna jedinica',close:'Zatvori',infoTitle:'Informacije / Donacije',donationFree:'Aplikacija je besplatna za korištenje, ali donacije su dobrodošle.',donationPart:'Dio primljenih donacija bit će proslijeđen raznim dobrotvornim organizacijama.',donationLargest:'Najveći dio bit će doniran ustanovama koje skrbe o djeci bez odgovarajuće roditeljske skrbi.',donationPrompt:'Donirati možete putem:',cardPayment:'Kartično plaćanje (Stripe)',cryptoWallet:'Kripto novčanici:'},
+      de:{brandTagline:'Kostenlose Online-Apps',categoryNav:'Umrechnungskategorien',fromUnit:'Ausgangseinheit',toUnit:'Zieleinheit',close:'Schließen',infoTitle:'Informationen / Spenden',donationFree:'Die Anwendung kann kostenlos genutzt werden, Spenden sind jedoch willkommen.',donationPart:'Ein Teil der erhaltenen Spenden wird an verschiedene gemeinnützige Organisationen weitergeleitet.',donationLargest:'Der größte Teil wird an Einrichtungen gespendet, die Kinder ohne angemessene elterliche Fürsorge betreuen.',donationPrompt:'Sie können spenden über:',cardPayment:'Kartenzahlung (Stripe)',cryptoWallet:'Krypto-Wallets:'},
+      it:{brandTagline:'Applicazioni online gratuite',categoryNav:'Categorie di conversione',fromUnit:'Unità di partenza',toUnit:'Unità di arrivo',close:'Chiudi',infoTitle:'Informazioni / Donazioni',donationFree:'L’applicazione è gratuita, ma le donazioni sono benvenute.',donationPart:'Una parte delle donazioni ricevute sarà destinata a varie organizzazioni benefiche.',donationLargest:'La parte maggiore sarà donata a istituti che si occupano di bambini privi di adeguate cure parentali.',donationPrompt:'Puoi effettuare una donazione tramite:',cardPayment:'Pagamento con carta (Stripe)',cryptoWallet:'Portafogli crypto:'},
+      es:{brandTagline:'Aplicaciones gratuitas en línea',categoryNav:'Categorías de conversión',fromUnit:'Unidad de origen',toUnit:'Unidad de destino',close:'Cerrar',infoTitle:'Información / Donaciones',donationFree:'La aplicación es gratuita, pero las donaciones son bienvenidas.',donationPart:'Una parte de las donaciones recibidas se destinará a diversas organizaciones benéficas.',donationLargest:'La mayor parte se donará a instituciones que atienden a niños sin una atención parental adecuada.',donationPrompt:'Puedes realizar una donación mediante:',cardPayment:'Pago con tarjeta (Stripe)',cryptoWallet:'Monederos de criptomonedas:'}
+    };
+
+    Object.entries(extraTranslations).forEach(([language,values])=>Object.assign(translations[language],values));
+    Object.assign(translations.en.categories,{torque:'Torque',force:'Force',dataRate:'Data transfer rate'});
+    Object.assign(translations.hr.categories,{torque:'Okretni moment',force:'Sila',dataRate:'Brzina prijenosa podataka'});
+    Object.assign(translations.de.categories,{torque:'Drehmoment',force:'Kraft',dataRate:'Datenübertragungsrate'});
+    Object.assign(translations.it.categories,{torque:'Coppia',force:'Forza',dataRate:'Velocità di trasferimento dati'});
+    Object.assign(translations.es.categories,{torque:'Par motor',force:'Fuerza',dataRate:'Velocidad de transferencia de datos'});
+
+    const factorUnit = (id, symbol, factor, name) => ({id, symbol, factor, name, toBase:v=>v*factor, fromBase:v=>v/factor});
+    const categories = {
+      length:{icon:'↔️', units:[factorUnit('mm','mm',.001,'Millimetre'),factorUnit('cm','cm',.01,'Centimetre'),factorUnit('m','m',1,'Metre'),factorUnit('km','km',1000,'Kilometre'),factorUnit('in','in',.0254,'Inch'),factorUnit('ft','ft',.3048,'Foot'),factorUnit('yd','yd',.9144,'Yard'),factorUnit('mi','mi',1609.344,'Mile'),factorUnit('nmi','nmi',1852,'Nautical mile')], defaults:['km','mi']},
+      time:{icon:'⏱️', units:[factorUnit('ms','ms',.001,'Millisecond'),factorUnit('s','s',1,'Second'),factorUnit('min','min',60,'Minute'),factorUnit('h','h',3600,'Hour'),factorUnit('day','day',86400,'Day'),factorUnit('week','week',604800,'Week'),factorUnit('month','month',2629800,'Average month'),factorUnit('year','year',31557600,'Average year')], defaults:['h','min']},
+      volume:{icon:'🧪', units:[factorUnit('ml','mL',.001,'Millilitre'),factorUnit('cl','cL',.01,'Centilitre'),factorUnit('dl','dL',.1,'Decilitre'),factorUnit('l','L',1,'Litre'),factorUnit('m3','m³',1000,'Cubic metre'),factorUnit('cup','cup',.2365882365,'US cup'),factorUnit('floz','fl oz',.0295735295625,'US fluid ounce'),factorUnit('galus','US gal',3.785411784,'US gallon'),factorUnit('galuk','UK gal',4.54609,'Imperial gallon')], defaults:['l','galus']},
+      area:{icon:'◻️', units:[factorUnit('mm2','mm²',1e-6,'Square millimetre'),factorUnit('cm2','cm²',1e-4,'Square centimetre'),factorUnit('m2','m²',1,'Square metre'),factorUnit('a','a',100,'Are'),factorUnit('ha','ha',10000,'Hectare'),factorUnit('km2','km²',1e6,'Square kilometre'),factorUnit('ft2','ft²',.09290304,'Square foot'),factorUnit('yd2','yd²',.83612736,'Square yard'),factorUnit('acre','acre',4046.8564224,'Acre'),factorUnit('mi2','mi²',2589988.110336,'Square mile')], defaults:['m2','ft2']},
+      mass:{icon:'⚖️', units:[factorUnit('mg','mg',1e-6,'Milligram'),factorUnit('g','g',.001,'Gram'),factorUnit('kg','kg',1,'Kilogram'),factorUnit('t','t',1000,'Metric tonne'),factorUnit('oz','oz',.028349523125,'Ounce'),factorUnit('lb','lb',.45359237,'Pound'),factorUnit('st','st',6.35029318,'Stone')], defaults:['kg','lb']},
+      power:{icon:'⚡', units:[factorUnit('w','W',1,'Watt'),factorUnit('kw','kW',1000,'Kilowatt'),factorUnit('mw','MW',1e6,'Megawatt'),factorUnit('ks','KS / PS',735.49875,'Metric horsepower'),factorUnit('hp','hp',745.6998715822702,'Mechanical horsepower'),factorUnit('btuh','BTU/h',.29307107,'BTU per hour')], defaults:['kw','ks']},
+      torque:{icon:'🔧', units:[factorUnit('nm','N·m',1,'Newton metre'),factorUnit('knm','kN·m',1000,'Kilonewton metre'),factorUnit('lbft','lb-ft',1.3558179483314,'Pound-foot'),factorUnit('lbin','lb-in',.1129848290276167,'Pound-inch'),factorUnit('kgfm','kgf·m',9.80665,'Kilogram-force metre')], defaults:['nm','lbft']},
+      force:{icon:'🏋️', units:[factorUnit('n','N',1,'Newton'),factorUnit('kn','kN',1000,'Kilonewton'),factorUnit('kgf','kgf',9.80665,'Kilogram-force'),factorUnit('lbf','lbf',4.4482216152605,'Pound-force')], defaults:['n','lbf']},
+      data:{icon:'💾', units:[factorUnit('bit','bit',1,'Bit'),factorUnit('byte','B',8,'Byte'),factorUnit('kbit','kbit',1e3,'Kilobit'),factorUnit('kbyte','kB',8e3,'Kilobyte'),factorUnit('kib','KiB',8192,'Kibibyte'),factorUnit('mbit','Mbit',1e6,'Megabit'),factorUnit('mbyte','MB',8e6,'Megabyte'),factorUnit('mib','MiB',8388608,'Mebibyte'),factorUnit('gbit','Gbit',1e9,'Gigabit'),factorUnit('gbyte','GB',8e9,'Gigabyte'),factorUnit('gib','GiB',8589934592,'Gibibyte'),factorUnit('tb','TB',8e12,'Terabyte'),factorUnit('tib','TiB',8796093022208,'Tebibyte')], defaults:['mbyte','mbit']},
+      dataRate:{icon:'📶', units:[factorUnit('kbits','kbit/s',1e3,'Kilobits per second'),factorUnit('mbits','Mbit/s',1e6,'Megabits per second'),factorUnit('gbits','Gbit/s',1e9,'Gigabits per second'),factorUnit('kbytes','kB/s',8e3,'Kilobytes per second'),factorUnit('mbytes','MB/s',8e6,'Megabytes per second'),factorUnit('gbytes','GB/s',8e9,'Gigabytes per second')], defaults:['mbits','mbytes']},
+      energy:{icon:'🔋', units:[factorUnit('j','J',1,'Joule'),factorUnit('kj','kJ',1e3,'Kilojoule'),factorUnit('mj','MJ',1e6,'Megajoule'),factorUnit('wh','Wh',3600,'Watt-hour'),factorUnit('kwh','kWh',3.6e6,'Kilowatt-hour'),factorUnit('cal','cal',4.184,'Calorie'),factorUnit('kcal','kcal',4184,'Kilocalorie'),factorUnit('btu','BTU',1055.05585262,'British thermal unit')], defaults:['kwh','mj']},
+      speed:{icon:'🏎️', units:[factorUnit('ms','m/s',1,'Metres per second'),factorUnit('kmh','km/h',1/3.6,'Kilometres per hour'),factorUnit('mph','mph',.44704,'Miles per hour'),factorUnit('knot','kn',.514444444,'Knot'),factorUnit('fts','ft/s',.3048,'Feet per second')], defaults:['kmh','mph']},
+      temperature:{icon:'🌡️', units:[{id:'c',symbol:'°C',name:'Celsius',toBase:v=>v,fromBase:v=>v},{id:'f',symbol:'°F',name:'Fahrenheit',toBase:v=>(v-32)*5/9,fromBase:v=>v*9/5+32},{id:'k',symbol:'K',name:'Kelvin',toBase:v=>v-273.15,fromBase:v=>v+273.15}], defaults:['c','f']},
+      pressure:{icon:'⏲️', units:[factorUnit('pa','Pa',1,'Pascal'),factorUnit('kpa','kPa',1e3,'Kilopascal'),factorUnit('bar','bar',1e5,'Bar'),factorUnit('mbar','mbar',100,'Millibar'),factorUnit('psi','psi',6894.757293168,'Pounds per square inch'),factorUnit('atm','atm',101325,'Standard atmosphere'),factorUnit('mmhg','mmHg',133.322387415,'Millimetres of mercury')], defaults:['bar','psi']},
+      fuel:{icon:'⛽', units:[{id:'l100',symbol:'L/100 km',name:'Litres per 100 km',toBase:v=>v,fromBase:v=>v},{id:'kml',symbol:'km/L',name:'Kilometres per litre',toBase:v=>100/v,fromBase:v=>100/v},{id:'mpgus',symbol:'mpg US',name:'US miles per gallon',toBase:v=>235.214583/v,fromBase:v=>235.214583/v},{id:'mpguk',symbol:'mpg UK',name:'Imperial miles per gallon',toBase:v=>282.480936/v,fromBase:v=>282.480936/v}], defaults:['l100','mpgus']},
+      frequency:{icon:'〰️', units:[factorUnit('hz','Hz',1,'Hertz'),factorUnit('khz','kHz',1e3,'Kilohertz'),factorUnit('mhz','MHz',1e6,'Megahertz'),factorUnit('ghz','GHz',1e9,'Gigahertz'),factorUnit('rpm','rpm',1/60,'Revolutions per minute')], defaults:['mhz','ghz']},
+      angle:{icon:'📐', units:[factorUnit('deg','°',1,'Degree'),factorUnit('rad','rad',180/Math.PI,'Radian'),factorUnit('grad','gon',.9,'Gradian'),factorUnit('turn','turn',360,'Turn'),factorUnit('arcmin','arcmin',1/60,'Arcminute'),factorUnit('arcsec','arcsec',1/3600,'Arcsecond')], defaults:['deg','rad']}
+    };
+
+    const unitTranslations = {
+      hr: {
+        length:['Milimetar','Centimetar','Metar','Kilometar','Inč','Stopa','Jard','Milja','Nautička milja'],
+        time:['Milisekunda','Sekunda','Minuta','Sat','Dan','Tjedan','Prosječni mjesec','Prosječna godina'],
+        volume:['Mililitar','Centilitar','Decilitar','Litra','Kubični metar','Američka šalica','Američka tekuća unca','Američki galon','Britanski galon'],
+        area:['Kvadratni milimetar','Kvadratni centimetar','Kvadratni metar','Ar','Hektar','Kvadratni kilometar','Kvadratna stopa','Kvadratni jard','Aker','Kvadratna milja'],
+        mass:['Miligram','Gram','Kilogram','Metrička tona','Unca','Funta','Stone (britanska jedinica)'],
+        power:['Vat','Kilovat','Megavat','Metrička konjska snaga','Mehanička konjska snaga','BTU po satu'],
+        torque:['Njutn-metar','Kilonjutn-metar','Funta-stopa','Funta-inč','Kilogram-sila metar'],
+        force:['Njutn','Kilonjutn','Kilogram-sila','Funta-sila'],
+        data:['Bit','Bajt','Kilobit','Kilobajt','Kibibajt','Megabit','Megabajt','Mebibajt','Gigabit','Gigabajt','Gibibajt','Terabajt','Tebibajt'],
+        dataRate:['Kilobita u sekundi','Megabita u sekundi','Gigabita u sekundi','Kilobajta u sekundi','Megabajta u sekundi','Gigabajta u sekundi'],
+        energy:['Džul','Kilodžul','Megadžul','Vat-sat','Kilovatsat','Kalorija','Kilokalorija','Britanska toplinska jedinica'],
+        speed:['Metara u sekundi','Kilometara na sat','Milja na sat','Čvor','Stopa u sekundi'],
+        temperature:['Celzijev stupanj','Fahrenheitov stupanj','Kelvin'],
+        pressure:['Paskal','Kilopaskal','Bar','Milibar','Funti po kvadratnom inču','Standardna atmosfera','Milimetar živina stupca'],
+        fuel:['Litara na 100 km','Kilometara po litri','Američkih milja po galonu','Britanskih milja po galonu'],
+        frequency:['Herc','Kiloherc','Megaherc','Gigaherc','Okretaja u minuti'],
+        angle:['Stupanj','Radijan','Gradijan','Puni okret','Lučna minuta','Lučna sekunda']
+      },
+      de: {
+        length:['Millimeter','Zentimeter','Meter','Kilometer','Zoll','Fuß','Yard','Meile','Seemeile'],
+        time:['Millisekunde','Sekunde','Minute','Stunde','Tag','Woche','Durchschnittsmonat','Durchschnittsjahr'],
+        volume:['Milliliter','Zentiliter','Deziliter','Liter','Kubikmeter','US-Tasse','US-Flüssigunze','US-Gallone','Imperial-Gallone'],
+        area:['Quadratmillimeter','Quadratzentimeter','Quadratmeter','Ar','Hektar','Quadratkilometer','Quadratfuß','Quadratyard','Acre','Quadratmeile'],
+        mass:['Milligramm','Gramm','Kilogramm','Metrische Tonne','Unze','Pfund','Stone (britische Einheit)'],
+        power:['Watt','Kilowatt','Megawatt','Metrische Pferdestärke','Mechanische Pferdestärke','BTU pro Stunde'],
+        torque:['Newtonmeter','Kilonewtonmeter','Pfund-Fuß','Pfund-Zoll','Kilogrammkraftmeter'],
+        force:['Newton','Kilonewton','Kilogrammkraft','Pfundkraft'],
+        data:['Bit','Byte','Kilobit','Kilobyte','Kibibyte','Megabit','Megabyte','Mebibyte','Gigabit','Gigabyte','Gibibyte','Terabyte','Tebibyte'],
+        dataRate:['Kilobit pro Sekunde','Megabit pro Sekunde','Gigabit pro Sekunde','Kilobyte pro Sekunde','Megabyte pro Sekunde','Gigabyte pro Sekunde'],
+        energy:['Joule','Kilojoule','Megajoule','Wattstunde','Kilowattstunde','Kalorie','Kilokalorie','Britische Wärmeeinheit'],
+        speed:['Meter pro Sekunde','Kilometer pro Stunde','Meilen pro Stunde','Knoten','Fuß pro Sekunde'],
+        temperature:['Grad Celsius','Grad Fahrenheit','Kelvin'],
+        pressure:['Pascal','Kilopascal','Bar','Millibar','Pfund pro Quadratzoll','Standardatmosphäre','Millimeter-Quecksilbersäule'],
+        fuel:['Liter pro 100 km','Kilometer pro Liter','US-Meilen pro Gallone','Britische Meilen pro Gallone'],
+        frequency:['Hertz','Kilohertz','Megahertz','Gigahertz','Umdrehungen pro Minute'],
+        angle:['Grad','Radiant','Gon','Umdrehung','Winkelminute','Winkelsekunde']
+      },
+      it: {
+        length:['Millimetro','Centimetro','Metro','Chilometro','Pollice','Piede','Iarda','Miglio','Miglio nautico'],
+        time:['Millisecondo','Secondo','Minuto','Ora','Giorno','Settimana','Mese medio','Anno medio'],
+        volume:['Millilitro','Centilitro','Decilitro','Litro','Metro cubo','Tazza statunitense','Oncia fluida statunitense','Gallone statunitense','Gallone imperiale'],
+        area:['Millimetro quadrato','Centimetro quadrato','Metro quadrato','Ara','Ettaro','Chilometro quadrato','Piede quadrato','Iarda quadrata','Acro','Miglio quadrato'],
+        mass:['Milligrammo','Grammo','Chilogrammo','Tonnellata metrica','Oncia','Libbra','Stone (unità britannica)'],
+        power:['Watt','Chilowatt','Megawatt','Cavallo vapore metrico','Cavallo vapore meccanico','BTU all’ora'],
+        torque:['Newton metro','Kilonewton metro','Libbra-piede','Libbra-pollice','Chilogrammo-forza metro'],
+        force:['Newton','Kilonewton','Chilogrammo-forza','Libbra-forza'],
+        data:['Bit','Byte','Kilobit','Kilobyte','Kibibyte','Megabit','Megabyte','Mebibyte','Gigabit','Gigabyte','Gibibyte','Terabyte','Tebibyte'],
+        dataRate:['Kilobit al secondo','Megabit al secondo','Gigabit al secondo','Kilobyte al secondo','Megabyte al secondo','Gigabyte al secondo'],
+        energy:['Joule','Kilojoule','Megajoule','Wattora','Chilowattora','Caloria','Chilocaloria','Unità termica britannica'],
+        speed:['Metri al secondo','Chilometri all’ora','Miglia all’ora','Nodo','Piedi al secondo'],
+        temperature:['Grado Celsius','Grado Fahrenheit','Kelvin'],
+        pressure:['Pascal','Kilopascal','Bar','Millibar','Libbre per pollice quadrato','Atmosfera standard','Millimetro di mercurio'],
+        fuel:['Litri per 100 km','Chilometri per litro','Miglia statunitensi per gallone','Miglia britanniche per gallone'],
+        frequency:['Hertz','Kilohertz','Megahertz','Gigahertz','Giri al minuto'],
+        angle:['Grado','Radiante','Gradiante','Giro completo','Minuto d’arco','Secondo d’arco']
+      },
+      es: {
+        length:['Milímetro','Centímetro','Metro','Kilómetro','Pulgada','Pie','Yarda','Milla','Milla náutica'],
+        time:['Milisegundo','Segundo','Minuto','Hora','Día','Semana','Mes promedio','Año promedio'],
+        volume:['Mililitro','Centilitro','Decilitro','Litro','Metro cúbico','Taza estadounidense','Onza líquida estadounidense','Galón estadounidense','Galón imperial'],
+        area:['Milímetro cuadrado','Centímetro cuadrado','Metro cuadrado','Área','Hectárea','Kilómetro cuadrado','Pie cuadrado','Yarda cuadrada','Acre','Milla cuadrada'],
+        mass:['Miligramo','Gramo','Kilogramo','Tonelada métrica','Onza','Libra','Stone (unidad británica)'],
+        power:['Vatio','Kilovatio','Megavatio','Caballo de vapor métrico','Caballo de fuerza mecánico','BTU por hora'],
+        torque:['Newton metro','Kilonewton metro','Libra-pie','Libra-pulgada','Kilogramo-fuerza metro'],
+        force:['Newton','Kilonewton','Kilogramo-fuerza','Libra-fuerza'],
+        data:['Bit','Byte','Kilobit','Kilobyte','Kibibyte','Megabit','Megabyte','Mebibyte','Gigabit','Gigabyte','Gibibyte','Terabyte','Tebibyte'],
+        dataRate:['Kilobits por segundo','Megabits por segundo','Gigabits por segundo','Kilobytes por segundo','Megabytes por segundo','Gigabytes por segundo'],
+        energy:['Julio','Kilojulio','Megajulio','Vatio-hora','Kilovatio-hora','Caloría','Kilocaloría','Unidad térmica británica'],
+        speed:['Metros por segundo','Kilómetros por hora','Millas por hora','Nudo','Pies por segundo'],
+        temperature:['Grado Celsius','Grado Fahrenheit','Kelvin'],
+        pressure:['Pascal','Kilopascal','Bar','Milibar','Libras por pulgada cuadrada','Atmósfera estándar','Milímetro de mercurio'],
+        fuel:['Litros por 100 km','Kilómetros por litro','Millas estadounidenses por galón','Millas británicas por galón'],
+        frequency:['Hercio','Kilohercio','Megahercio','Gigahercio','Revoluciones por minuto'],
+        angle:['Grado','Radián','Gradián','Vuelta completa','Minuto de arco','Segundo de arco']
+      }
+    };
+
+    const state = {language:'en', category:'length', lastEdited:'from'};
+    const els = Object.fromEntries(['categoryStrip','categoryTitle','categoryNote','inputValue','outputValue','fromUnit','toUnit','swapButton','copyButton','clearButton','resultsGrid','equation','languageSelect','infoButton','infoDialog','closeInfo','toast'].map(id=>[id,document.getElementById(id)]));
+
+    function t(key){ return key.split('.').reduce((obj,k)=>obj?.[k], translations[state.language]) ?? key; }
+    function localize(){
+      document.documentElement.lang=state.language;
+      document.querySelectorAll('[data-i18n]').forEach(el=>el.textContent=t(el.dataset.i18n));
+      els.languageSelect.value=state.language;
+      els.languageSelect.setAttribute('aria-label',t('language'));
+      els.categoryStrip.setAttribute('aria-label',t('categoryNav'));
+      els.fromUnit.setAttribute('aria-label',t('fromUnit'));
+      els.toUnit.setAttribute('aria-label',t('toUnit'));
+      els.closeInfo.setAttribute('aria-label',t('close'));
+      els.swapButton.setAttribute('aria-label',t('swap')); els.swapButton.title=t('swap');
+      els.copyButton.setAttribute('aria-label',t('copy')); els.copyButton.title=t('copy');
+      document.title=`${t('appTitle')} | Apps & Games`;
+      renderCategories(); renderCategory(false); convert();
+    }
+
+    function renderCategories(){
+      els.categoryStrip.innerHTML='';
+      Object.entries(categories).forEach(([key,cat])=>{
+        const button=document.createElement('button'); button.type='button'; button.className=`category-button${key===state.category?' active':''}`;
+        button.innerHTML=`<span class="emoji" aria-hidden="true">${cat.icon}</span><span>${t('categories.'+key)}</span>`;
+        button.setAttribute('aria-pressed',key===state.category); button.onclick=()=>setCategory(key);
+        els.categoryStrip.appendChild(button);
+      });
+      requestAnimationFrame(()=>els.categoryStrip.querySelector('.active')?.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'}));
+    }
+
+    function renderCategory(resetUnits=true){
+      const cat=categories[state.category];
+      els.categoryTitle.textContent=`${cat.icon} ${t('categories.'+state.category)}`;
+      els.categoryNote.textContent=t(`notes.${state.category}`).startsWith('notes.') ? '' : t(`notes.${state.category}`);
+      const oldFrom=els.fromUnit.value, oldTo=els.toUnit.value;
+      const options=cat.units.map(u=>`<option value="${u.id}">${unitName(u)} (${u.symbol})</option>`).join('');
+      els.fromUnit.innerHTML=options; els.toUnit.innerHTML=options;
+      if(resetUnits){ [els.fromUnit.value,els.toUnit.value]=cat.defaults; }
+      else {
+        els.fromUnit.value=cat.units.some(u=>u.id===oldFrom)?oldFrom:cat.defaults[0];
+        els.toUnit.value=cat.units.some(u=>u.id===oldTo)?oldTo:cat.defaults[1];
+      }
+    }
+
+    function setCategory(key){ state.category=key; state.lastEdited='from'; renderCategories(); renderCategory(true); convert('from'); }
+    function parseNumber(value){ const normalized=String(value).trim().replace(/\s/g,'').replace(',','.'); return normalized===''?NaN:Number(normalized); }
+    function formatNumber(value){
+      if(!Number.isFinite(value)) return '—';
+      if(Math.abs(value)<1e-12) value=0;
+      const abs=Math.abs(value);
+      if((abs>=1e12)||(abs>0&&abs<1e-7)) return value.toExponential(8).replace(/\.?(0+)(?=e)/,'');
+      return new Intl.NumberFormat(state.language,{maximumSignificantDigits:12,maximumFractionDigits:10,useGrouping:false}).format(value);
+    }
+
+    function getUnit(id){ return categories[state.category].units.find(u=>u.id===id); }
+    function unitName(unit){
+      const index=categories[state.category].units.indexOf(unit);
+      return unitTranslations[state.language]?.[state.category]?.[index] ?? unit.name;
+    }
+    function calculate(value,from,to){
+      if(state.category==='fuel' && value===0) return NaN;
+      return to.fromBase(from.toBase(value));
+    }
+
+    function convert(direction=state.lastEdited){
+      state.lastEdited=direction;
+      const from=getUnit(els.fromUnit.value); const to=getUnit(els.toUnit.value);
+      const sourceElement=direction==='to'?els.outputValue:els.inputValue;
+      const targetElement=direction==='to'?els.inputValue:els.outputValue;
+      const sourceUnit=direction==='to'?to:from;
+      const targetUnit=direction==='to'?from:to;
+      const value=parseNumber(sourceElement.value);
+      if(!from||!to||!Number.isFinite(value)){
+        targetElement.value=''; els.equation.textContent=t('invalid'); els.resultsGrid.innerHTML=''; return;
+      }
+      const result=calculate(value,sourceUnit,targetUnit); const formatted=formatNumber(result); targetElement.value=formatted;
+      const leftValue=direction==='to'?formatted:formatNumber(value);
+      const rightValue=direction==='to'?formatNumber(value):formatted;
+      els.equation.innerHTML=`<strong>${leftValue} ${from.symbol}</strong> = <strong>${rightValue} ${to.symbol}</strong>`;
+      renderQuickResults(value,sourceUnit,targetUnit);
+    }
+
+    function renderQuickResults(value,from,to){
+      const units=categories[state.category].units.filter(u=>u.id!==from.id&&u.id!==to.id).slice(0,6);
+      els.resultsGrid.innerHTML=units.map(unit=>`<div class="result-chip" title="${unitName(unit)}"><span class="result-number">${formatNumber(calculate(value,from,unit))}</span><span class="result-unit">${unitName(unit)} · ${unit.symbol}</span></div>`).join('');
+    }
+
+    function showToast(message){ els.toast.textContent=message; els.toast.classList.add('show'); clearTimeout(showToast.timer); showToast.timer=setTimeout(()=>els.toast.classList.remove('show'),1800); }
+    els.inputValue.addEventListener('input',()=>convert('from')); els.outputValue.addEventListener('input',()=>convert('to'));
+    els.fromUnit.addEventListener('change',()=>convert()); els.toUnit.addEventListener('change',()=>convert());
+    els.swapButton.addEventListener('click',()=>{
+      const unit=els.fromUnit.value; els.fromUnit.value=els.toUnit.value; els.toUnit.value=unit;
+      const value=els.inputValue.value; els.inputValue.value=els.outputValue.value; els.outputValue.value=value;
+      state.lastEdited=state.lastEdited==='from'?'to':'from'; convert();
+    });
+    els.clearButton.addEventListener('click',()=>{ els.inputValue.value=''; els.outputValue.value=''; state.lastEdited='from'; convert('from'); els.inputValue.focus(); });
+    els.copyButton.addEventListener('click',async()=>{ if(!els.outputValue.value)return; try{await navigator.clipboard.writeText(`${els.outputValue.value} ${getUnit(els.toUnit.value).symbol}`); showToast(t('copied'));}catch{els.outputValue.select();document.execCommand('copy');showToast(t('copied'));} });
+    els.languageSelect.addEventListener('change',e=>{state.language=e.target.value; localStorage.setItem('unitConverterLanguage',state.language); localize();});
+    els.infoButton.addEventListener('click',()=>els.infoDialog.showModal()); els.closeInfo.addEventListener('click',()=>els.infoDialog.close());
+    els.infoDialog.addEventListener('click',e=>{const r=els.infoDialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)els.infoDialog.close();});
+    document.getElementById('year').textContent=new Date().getFullYear();
+    const savedLanguage=localStorage.getItem('unitConverterLanguage'); if(translations[savedLanguage]) state.language=savedLanguage;
+    localize();
+  </script>
+</body>
+</html>
