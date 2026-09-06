@@ -18,7 +18,7 @@ jobs:
       - name: Verify
         run: |
           grep -q 'wallet-copy' index.html
-          test "$(grep -o 'data-copy-wallet' index.html | wc -l)" -eq 8
+          test "$(grep -o 'class=\"wallet-copy\"' index.html | wc -l)" -eq 8
           grep -q "copyWallet:'Kopiraj'" index.html
           grep -q "copyWalletDone:'Kopirano!'" index.html
       - name: Commit
