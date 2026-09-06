@@ -560,9 +560,12 @@
       es:{categories:{shoes:'Tallas de calzado',clothing:'Tallas de ropa',hats:'Tallas de sombrero',rings:'Tallas de anillo',roman:'Números romanos'},notes:{shoes:'Comparación internacional aproximada. La tabla del fabricante tiene prioridad.',clothing:'Elige perfil y tipo de prenda. Las tallas varían según marca y corte.',hats:'La conversión se basa principalmente en el contorno de la cabeza. El ajuste puede variar.',rings:'Comparación internacional aproximada. Mide cuidadosamente el diámetro interior o la circunferencia.',roman:'Números romanos estándar del 1 al 3999.'},profile:'Perfil',garment:'Tipo de prenda',men:'Hombre',women:'Mujer',children:'Niños',tops:'Partes de arriba / chaquetas',bottoms:'Pantalones / parte inferior',dresses:'Vestidos',sizeComparison:'Comparación de tallas',sizeNote:'Fila seleccionada resaltada · guía aproximada',approx:'aprox.'}
     };
     Object.entries(shoppingTranslations).forEach(([language,values])=>{
-      Object.assign(translations[language].categories,values.categories);
-      Object.assign(translations[language].notes,values.notes);
-      Object.assign(translations[language],values);
+      // Merge nested translation groups without overwriting the existing
+      // categories/notes from the original Unit Converter.
+      Object.assign(translations[language].categories, values.categories);
+      Object.assign(translations[language].notes, values.notes);
+      const { categories: _categories, notes: _notes, ...topLevelValues } = values;
+      Object.assign(translations[language], topLevelValues);
     });
 
     const factorUnit = (id, symbol, factor, name) => ({id, symbol, factor, name, toBase:v=>v*factor, fromBase:v=>v/factor});
