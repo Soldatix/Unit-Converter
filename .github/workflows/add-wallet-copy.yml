@@ -1,0 +1,30 @@
+name: Add Unit Converter wallet copy buttons
+
+on:
+  push:
+    paths:
+      - '.github/workflows/add-wallet-copy.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add crypto wallet copy buttons
+        run: python .github/scripts/add-wallet-copy.py
+      - name: Verify
+        run: |
+          grep -q 'wallet-copy' index.html
+          test "$(grep -o 'data-copy-wallet' index.html | wc -l)" -eq 8
+          grep -q "copyWallet:'Kopiraj'" index.html
+          grep -q "copyWalletDone:'Kopirano!'" index.html
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Add crypto wallet copy buttons"
+          git push
