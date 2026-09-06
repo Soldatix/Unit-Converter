@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#071b2b">
-  <meta name="description" content="Fast multilingual converter for everyday and technical units.">
+  <meta name="description" content="Fast multilingual converter for everyday and technical units, clothing and shoe sizes, ring and hat sizes, and Roman numerals.">
   <title>Unit Converter | Apps & Games</title>
   <style>
     :root {
@@ -280,6 +280,46 @@
     .result-chip .result-number { display: block; overflow: hidden; color: var(--text); font-weight: 750; text-overflow: ellipsis; white-space: nowrap; }
     .result-chip .result-unit { display: block; margin-top: 4px; color: var(--muted); font-size: .8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
+
+
+    .special-controls {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin: -4px 0 22px;
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(3, 19, 29, .38);
+    }
+    .special-controls[hidden], .special-control-group[hidden] { display: none; }
+    .special-control-group .unit-select {
+      height: 48px;
+      border-top: 1px solid rgba(151,210,229,.22);
+      border-radius: 14px;
+    }
+
+    .comparison-panel {
+      margin-top: 22px;
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(12,39,56,.56);
+    }
+    .comparison-panel[hidden] { display: none; }
+    .comparison-heading { display: flex; align-items: end; justify-content: space-between; gap: 18px; margin-bottom: 12px; }
+    .comparison-heading h3 { margin: 0; font-size: 1rem; color: var(--text); }
+    .comparison-heading p { margin: 0; color: var(--muted); font-size: .82rem; text-align: right; }
+    .size-table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; }
+    .size-table { width: 100%; min-width: 620px; border-collapse: collapse; background: rgba(3,19,29,.34); }
+    .size-table th, .size-table td { padding: 11px 12px; border-bottom: 1px solid var(--line); text-align: center; white-space: nowrap; }
+    .size-table th { color: var(--cyan); background: rgba(76,215,229,.065); font-size: .78rem; font-weight: 800; }
+    .size-table td { color: #dff3fa; font-size: .9rem; }
+    .size-table tbody tr:last-child td { border-bottom: 0; }
+    .size-table tbody tr.selected-size td { color: #071b2b; background: var(--lime); font-weight: 850; }
+    .size-table tbody tr.selected-size td:first-child { box-shadow: inset 3px 0 0 var(--cyan-2); }
+    .approx-badge { display: inline-flex; margin-left: 8px; padding: 3px 7px; border: 1px solid rgba(198,239,104,.3); border-radius: 999px; color: var(--lime); font-size: .72rem; font-weight: 800; vertical-align: middle; }
+
     dialog {
       width: min(680px, calc(100% - 28px));
       max-height: min(760px, calc(100vh - 34px));
@@ -337,6 +377,9 @@
       .converter-card { padding: 20px 16px; }
       .card-heading { margin-bottom: 18px; }
       .results-grid { grid-template-columns: 1fr 1fr; }
+      .special-controls { grid-template-columns: 1fr; }
+      .comparison-heading { align-items: start; flex-direction: column; gap: 5px; }
+      .comparison-heading p { text-align: left; }
     }
 
     @media (max-width: 460px) {
@@ -401,6 +444,17 @@
           <button class="clear-button" id="clearButton" type="button" data-i18n="clear">Clear</button>
         </div>
 
+        <div class="special-controls" id="specialControls" hidden>
+          <div class="special-control-group" id="profileGroup">
+            <label class="field-label" for="profileSelect" id="profileLabel">Profile</label>
+            <select class="unit-select" id="profileSelect"></select>
+          </div>
+          <div class="special-control-group" id="garmentGroup">
+            <label class="field-label" for="garmentSelect" id="garmentLabel">Garment</label>
+            <select class="unit-select" id="garmentSelect"></select>
+          </div>
+        </div>
+
         <div class="conversion-row">
           <div class="unit-panel">
             <label class="field-label" for="inputValue" data-i18n="from">From</label>
@@ -431,6 +485,19 @@
     <section class="quick-results">
       <h3 data-i18n="alsoEquals">Also equals</h3>
       <div class="results-grid" id="resultsGrid"></div>
+    </section>
+
+    <section class="comparison-panel" id="comparisonPanel" hidden>
+      <div class="comparison-heading">
+        <h3 id="comparisonTitle">Size comparison</h3>
+        <p id="comparisonNote"></p>
+      </div>
+      <div class="size-table-wrap">
+        <table class="size-table">
+          <thead id="comparisonHead"></thead>
+          <tbody id="comparisonBody"></tbody>
+        </table>
+      </div>
     </section>
     <footer>© <span id="year"></span> Apps &amp; Games</footer>
   </main>
@@ -485,6 +552,19 @@
     Object.assign(translations.it.categories,{torque:'Coppia',force:'Forza',dataRate:'Velocità di trasferimento dati'});
     Object.assign(translations.es.categories,{torque:'Par motor',force:'Fuerza',dataRate:'Velocidad de transferencia de datos'});
 
+    const shoppingTranslations = {
+      en:{categories:{shoes:'Shoe sizes',clothing:'Clothing sizes',hats:'Hat sizes',rings:'Ring sizes',roman:'Roman numerals'},notes:{shoes:'Approximate international comparison. Brand size charts take priority.',clothing:'Choose a profile and garment type. Clothing sizes vary by brand and cut.',hats:'Based primarily on head circumference. Brand fit can vary.',rings:'Approximate international comparison. Measure the inner diameter or circumference carefully.',roman:'Standard Roman numerals from 1 to 3999.'},profile:'Profile',garment:'Garment',men:'Men',women:'Women',children:'Children',tops:'Tops / jackets',bottoms:'Trousers / bottoms',dresses:'Dresses',sizeComparison:'Size comparison',sizeNote:'Selected row is highlighted · approximate guide',approx:'approx.'},
+      hr:{categories:{shoes:'Veličine obuće',clothing:'Veličine odjeće',hats:'Veličine šešira',rings:'Veličine prstena',roman:'Rimski brojevi'},notes:{shoes:'Približna međunarodna usporedba. Tablica proizvođača ima prednost.',clothing:'Odaberite profil i vrstu odjeće. Veličine ovise o proizvođaču i kroju.',hats:'Pretvorba se prvenstveno temelji na opsegu glave. Kroj proizvođača može odstupati.',rings:'Približna međunarodna usporedba. Pažljivo izmjerite unutarnji promjer ili opseg.',roman:'Standardni rimski brojevi od 1 do 3999.'},profile:'Profil',garment:'Vrsta odjeće',men:'Muškarci',women:'Žene',children:'Djeca',tops:'Gornji dio / jakne',bottoms:'Hlače / donji dio',dresses:'Haljine',sizeComparison:'Usporedba veličina',sizeNote:'Odabrani red je istaknut · približni vodič',approx:'pribl.'},
+      de:{categories:{shoes:'Schuhgrößen',clothing:'Kleidergrößen',hats:'Hutgrößen',rings:'Ringgrößen',roman:'Römische Zahlen'},notes:{shoes:'Ungefähre internationale Vergleichswerte. Die Größentabelle des Herstellers hat Vorrang.',clothing:'Profil und Kleidungsart wählen. Größen unterscheiden sich je nach Marke und Schnitt.',hats:'Die Umrechnung basiert hauptsächlich auf dem Kopfumfang. Die Passform kann je nach Marke abweichen.',rings:'Ungefähre internationale Vergleichswerte. Innendurchmesser oder Umfang sorgfältig messen.',roman:'Standardmäßige römische Zahlen von 1 bis 3999.'},profile:'Profil',garment:'Kleidungsart',men:'Herren',women:'Damen',children:'Kinder',tops:'Oberteile / Jacken',bottoms:'Hosen / Unterteile',dresses:'Kleider',sizeComparison:'Größenvergleich',sizeNote:'Ausgewählte Zeile hervorgehoben · ungefähre Orientierung',approx:'ca.'},
+      it:{categories:{shoes:'Taglie scarpe',clothing:'Taglie abbigliamento',hats:'Taglie cappelli',rings:'Misure anelli',roman:'Numeri romani'},notes:{shoes:'Confronto internazionale indicativo. Fa fede la tabella taglie del produttore.',clothing:'Scegli profilo e tipo di capo. Le taglie variano in base a marca e vestibilità.',hats:'Conversione basata soprattutto sulla circonferenza della testa. La vestibilità può variare.',rings:'Confronto internazionale indicativo. Misura con attenzione diametro interno o circonferenza.',roman:'Numeri romani standard da 1 a 3999.'},profile:'Profilo',garment:'Tipo di capo',men:'Uomo',women:'Donna',children:'Bambini',tops:'Top / giacche',bottoms:'Pantaloni / parte inferiore',dresses:'Abiti',sizeComparison:'Confronto taglie',sizeNote:'Riga selezionata evidenziata · guida indicativa',approx:'circa'},
+      es:{categories:{shoes:'Tallas de calzado',clothing:'Tallas de ropa',hats:'Tallas de sombrero',rings:'Tallas de anillo',roman:'Números romanos'},notes:{shoes:'Comparación internacional aproximada. La tabla del fabricante tiene prioridad.',clothing:'Elige perfil y tipo de prenda. Las tallas varían según marca y corte.',hats:'La conversión se basa principalmente en el contorno de la cabeza. El ajuste puede variar.',rings:'Comparación internacional aproximada. Mide cuidadosamente el diámetro interior o la circunferencia.',roman:'Números romanos estándar del 1 al 3999.'},profile:'Perfil',garment:'Tipo de prenda',men:'Hombre',women:'Mujer',children:'Niños',tops:'Partes de arriba / chaquetas',bottoms:'Pantalones / parte inferior',dresses:'Vestidos',sizeComparison:'Comparación de tallas',sizeNote:'Fila seleccionada resaltada · guía aproximada',approx:'aprox.'}
+    };
+    Object.entries(shoppingTranslations).forEach(([language,values])=>{
+      Object.assign(translations[language].categories,values.categories);
+      Object.assign(translations[language].notes,values.notes);
+      Object.assign(translations[language],values);
+    });
+
     const factorUnit = (id, symbol, factor, name) => ({id, symbol, factor, name, toBase:v=>v*factor, fromBase:v=>v/factor});
     const categories = {
       length:{icon:'↔️', units:[factorUnit('mm','mm',.001,'Millimetre'),factorUnit('cm','cm',.01,'Centimetre'),factorUnit('m','m',1,'Metre'),factorUnit('km','km',1000,'Kilometre'),factorUnit('in','in',.0254,'Inch'),factorUnit('ft','ft',.3048,'Foot'),factorUnit('yd','yd',.9144,'Yard'),factorUnit('mi','mi',1609.344,'Mile'),factorUnit('nmi','nmi',1852,'Nautical mile')], defaults:['km','mi']},
@@ -505,6 +585,127 @@
       frequency:{icon:'〰️', units:[factorUnit('hz','Hz',1,'Hertz'),factorUnit('khz','kHz',1e3,'Kilohertz'),factorUnit('mhz','MHz',1e6,'Megahertz'),factorUnit('ghz','GHz',1e9,'Gigahertz'),factorUnit('rpm','rpm',1/60,'Revolutions per minute')], defaults:['mhz','ghz']},
       angle:{icon:'📐', units:[factorUnit('deg','°',1,'Degree'),factorUnit('rad','rad',180/Math.PI,'Radian'),factorUnit('grad','gon',.9,'Gradian'),factorUnit('turn','turn',360,'Turn'),factorUnit('arcmin','arcmin',1/60,'Arcminute'),factorUnit('arcsec','arcsec',1/3600,'Arcsecond')], defaults:['deg','rad']}
     };
+
+    const namedUnit=(id,symbol,name,names)=>({id,symbol,name,names});
+    const U={
+      shoes:[
+        namedUnit('eu','EU','EU size',{hr:'EU veličina',de:'EU-Größe',it:'Taglia EU',es:'Talla EU'}),
+        namedUnit('usm','US M','US Men',{hr:'US muška',de:'US Herren',it:'US uomo',es:'US hombre'}),
+        namedUnit('usw','US W','US Women',{hr:'US ženska',de:'US Damen',it:'US donna',es:'US mujer'}),
+        namedUnit('uk','UK','UK size',{hr:'UK veličina',de:'UK-Größe',it:'Taglia UK',es:'Talla UK'}),
+        namedUnit('cm','cm','Foot length',{hr:'Dužina stopala',de:'Fußlänge',it:'Lunghezza piede',es:'Longitud del pie'}),
+        namedUnit('inch','in','Foot length',{hr:'Dužina stopala',de:'Fußlänge',it:'Lunghezza piede',es:'Longitud del pie'})
+      ],
+      hats:[
+        namedUnit('intl','INT','International',{hr:'Međunarodna',de:'International',it:'Internazionale',es:'Internacional'}),
+        namedUnit('cm','cm','Head circumference',{hr:'Opseg glave',de:'Kopfumfang',it:'Circonferenza testa',es:'Contorno de cabeza'}),
+        namedUnit('inch','in','Head circumference',{hr:'Opseg glave',de:'Kopfumfang',it:'Circonferenza testa',es:'Contorno de cabeza'}),
+        namedUnit('us','US','US hat size',{hr:'US veličina',de:'US-Hutgröße',it:'Taglia cappello US',es:'Talla sombrero US'}),
+        namedUnit('uk','UK','UK hat size',{hr:'UK veličina',de:'UK-Hutgröße',it:'Taglia cappello UK',es:'Talla sombrero UK'})
+      ],
+      rings:[
+        namedUnit('eu','EU / mm','EU circumference',{hr:'EU opseg',de:'EU-Umfang',it:'Circonferenza EU',es:'Circunferencia EU'}),
+        namedUnit('us','US','US size',{hr:'US veličina',de:'US-Größe',it:'Misura US',es:'Talla US'}),
+        namedUnit('uk','UK','UK size',{hr:'UK veličina',de:'UK-Größe',it:'Misura UK',es:'Talla UK'}),
+        namedUnit('jp','JP','Japan size',{hr:'Japanska veličina',de:'Japan-Größe',it:'Misura Giappone',es:'Talla Japón'}),
+        namedUnit('diameter','mm Ø','Inner diameter',{hr:'Unutarnji promjer',de:'Innendurchmesser',it:'Diametro interno',es:'Diámetro interior'})
+      ],
+      roman:[
+        namedUnit('arabic','123','Arabic number',{hr:'Arapski broj',de:'Arabische Zahl',it:'Numero arabo',es:'Número arábigo'}),
+        namedUnit('roman','I V X','Roman numeral',{hr:'Rimski broj',de:'Römische Zahl',it:'Numero romano',es:'Número romano'})
+      ]
+    };
+
+    const shoeRows=[
+      {eu:35.5,usm:4,usw:5.5,uk:3,cm:22,inch:8.66},{eu:36,usm:4.5,usw:6,uk:3.5,cm:22.5,inch:8.86},
+      {eu:37,usm:5,usw:6.5,uk:4,cm:23,inch:9.06},{eu:37.5,usm:5.5,usw:7,uk:4.5,cm:23.5,inch:9.25},
+      {eu:38,usm:6,usw:7.5,uk:5,cm:24,inch:9.45},{eu:39,usm:6.5,usw:8,uk:5.5,cm:24.5,inch:9.65},
+      {eu:40,usm:7,usw:8.5,uk:6,cm:25,inch:9.84},{eu:40.5,usm:7.5,usw:9,uk:6.5,cm:25.5,inch:10.04},
+      {eu:41,usm:8,usw:9.5,uk:7,cm:26,inch:10.24},{eu:42,usm:8.5,usw:10,uk:7.5,cm:26.5,inch:10.43},
+      {eu:42.5,usm:9,usw:10.5,uk:8,cm:27,inch:10.63},{eu:43,usm:9.5,usw:11,uk:8.5,cm:27.5,inch:10.83},
+      {eu:44,usm:10,usw:11.5,uk:9,cm:28,inch:11.02},{eu:44.5,usm:10.5,usw:12,uk:9.5,cm:28.5,inch:11.22},
+      {eu:45,usm:11,usw:12.5,uk:10,cm:29,inch:11.42},{eu:45.5,usm:11.5,usw:13,uk:10.5,cm:29.5,inch:11.61},
+      {eu:46,usm:12,usw:13.5,uk:11,cm:30,inch:11.81},{eu:47,usm:12.5,usw:14,uk:11.5,cm:30.5,inch:12.01},
+      {eu:47.5,usm:13,usw:14.5,uk:12,cm:31,inch:12.20}
+    ];
+
+    const hatRows=[
+      {intl:'S',cm:54,inch:21.26,us:'6 3/4',uk:'6 5/8'},{intl:'S',cm:55,inch:21.65,us:'6 7/8',uk:'6 3/4'},
+      {intl:'M',cm:56,inch:22.05,us:'7',uk:'6 7/8'},{intl:'M',cm:57,inch:22.44,us:'7 1/8',uk:'7'},
+      {intl:'L',cm:58,inch:22.83,us:'7 1/4',uk:'7 1/8'},{intl:'L',cm:59,inch:23.23,us:'7 3/8',uk:'7 1/4'},
+      {intl:'XL',cm:60,inch:23.62,us:'7 1/2',uk:'7 3/8'},{intl:'XL',cm:61,inch:24.02,us:'7 5/8',uk:'7 1/2'},
+      {intl:'XXL',cm:62,inch:24.41,us:'7 3/4',uk:'7 5/8'},{intl:'XXL',cm:63,inch:24.80,us:'7 7/8',uk:'7 3/4'},
+      {intl:'XXL',cm:64,inch:25.20,us:'8',uk:'7 7/8'}
+    ];
+
+    const ringBase=[
+      [46.8,4,'H 1/2',7],[48.0,4.5,'I 1/2',8],[49.3,5,'J 1/2',9],[50.6,5.5,'K 1/2',10],
+      [51.9,6,'L 1/2',11],[53.1,6.5,'M 1/2',13],[54.4,7,'N 1/2',14],[55.7,7.5,'O 1/2',15],
+      [57.0,8,'P 1/2',16],[58.3,8.5,'Q 1/2',17],[59.5,9,'R 1/2',18],[60.8,9.5,'S 1/2',19],
+      [62.1,10,'T 1/2',20],[63.4,10.5,'U 1/2',22],[64.6,11,'V 1/2',23],[65.9,11.5,'W 1/2',24],
+      [67.2,12,'X 1/2',25],[68.5,12.5,'Y 1/2',26],[69.7,13,'Z 1/2',27]
+    ];
+    const ringRows=ringBase.map(([eu,us,uk,jp])=>({eu,us,uk,jp,diameter:Number((eu/Math.PI).toFixed(2))}));
+
+    const CUNIT={
+      intl:namedUnit('intl','INT','International',{hr:'Međunarodna',de:'International',it:'Internazionale',es:'Internacional'}),
+      eu:namedUnit('eu','EU','EU size',{hr:'EU veličina',de:'EU-Größe',it:'Taglia EU',es:'Talla EU'}),
+      us:namedUnit('us','US','US size',{hr:'US veličina',de:'US-Größe',it:'Taglia US',es:'Talla US'}),
+      uk:namedUnit('uk','UK','UK size',{hr:'UK veličina',de:'UK-Größe',it:'Taglia UK',es:'Talla UK'}),
+      it:namedUnit('it','IT','Italian size',{hr:'Talijanska veličina',de:'Italienische Größe',it:'Taglia italiana',es:'Talla italiana'}),
+      usuk:namedUnit('usuk','US/UK','US / UK',{hr:'US / UK',de:'US / UK',it:'US / UK',es:'US / UK'}),
+      chest:namedUnit('chest','cm','Chest circumference',{hr:'Opseg prsa',de:'Brustumfang',it:'Circonferenza torace',es:'Contorno de pecho'}),
+      bust:namedUnit('bust','cm','Bust circumference',{hr:'Opseg grudi',de:'Brustumfang',it:'Circonferenza seno',es:'Contorno de busto'}),
+      waist:namedUnit('waist','cm','Waist circumference',{hr:'Opseg struka',de:'Taillenumfang',it:'Circonferenza vita',es:'Contorno de cintura'}),
+      waistIn:namedUnit('waistIn','in','Jeans waist',{hr:'Struk traperica',de:'Jeans-Bundweite',it:'Vita jeans',es:'Cintura vaqueros'}),
+      age:namedUnit('age','age','Age',{hr:'Dob',de:'Alter',it:'Età',es:'Edad'}),
+      height:namedUnit('height','cm','Body height',{hr:'Visina tijela',de:'Körpergröße',it:'Altezza',es:'Estatura'}),
+      usk:namedUnit('usk','US','US kids',{hr:'US dječja',de:'US Kinder',it:'US bambini',es:'US niños'}),
+      uka:namedUnit('uka','UK','UK age',{hr:'UK dob',de:'UK Alter',it:'UK età',es:'UK edad'})
+    };
+
+    const clothingData={
+      men:{
+        tops:{units:[CUNIT.intl,CUNIT.eu,CUNIT.usuk,CUNIT.chest],defaults:['intl','eu'],defaultValue:'M',rows:[
+          {intl:'XS',eu:44,usuk:34,chest:86},{intl:'S',eu:46,usuk:36,chest:91},{intl:'M',eu:48,usuk:38,chest:96},
+          {intl:'L',eu:50,usuk:40,chest:101},{intl:'XL',eu:52,usuk:42,chest:106},{intl:'XXL',eu:54,usuk:44,chest:111},{intl:'3XL',eu:56,usuk:46,chest:116}
+        ]},
+        bottoms:{units:[CUNIT.intl,CUNIT.eu,CUNIT.waistIn,CUNIT.waist],defaults:['waistIn','eu'],defaultValue:'32',rows:[
+          {intl:'XS',eu:44,waistIn:28,waist:71},{intl:'S',eu:46,waistIn:30,waist:76},{intl:'M',eu:48,waistIn:32,waist:81},
+          {intl:'L',eu:50,waistIn:34,waist:86},{intl:'XL',eu:52,waistIn:36,waist:91},{intl:'XXL',eu:54,waistIn:38,waist:97},{intl:'3XL',eu:56,waistIn:40,waist:102}
+        ]}
+      },
+      women:{
+        tops:{units:[CUNIT.intl,CUNIT.eu,CUNIT.us,CUNIT.uk,CUNIT.it,CUNIT.bust],defaults:['eu','us'],defaultValue:'38',rows:[
+          {intl:'XXS',eu:32,us:0,uk:4,it:36,bust:76},{intl:'XS',eu:34,us:2,uk:6,it:38,bust:80},{intl:'S',eu:36,us:4,uk:8,it:40,bust:84},
+          {intl:'M',eu:38,us:6,uk:10,it:42,bust:88},{intl:'L',eu:40,us:8,uk:12,it:44,bust:92},{intl:'XL',eu:42,us:10,uk:14,it:46,bust:96},{intl:'XXL',eu:44,us:12,uk:16,it:48,bust:100}
+        ]},
+        bottoms:{units:[CUNIT.intl,CUNIT.eu,CUNIT.us,CUNIT.uk,CUNIT.waist],defaults:['eu','us'],defaultValue:'38',rows:[
+          {intl:'XXS',eu:32,us:0,uk:4,waist:60},{intl:'XS',eu:34,us:2,uk:6,waist:64},{intl:'S',eu:36,us:4,uk:8,waist:68},
+          {intl:'M',eu:38,us:6,uk:10,waist:72},{intl:'L',eu:40,us:8,uk:12,waist:76},{intl:'XL',eu:42,us:10,uk:14,waist:80},{intl:'XXL',eu:44,us:12,uk:16,waist:84}
+        ]},
+        dresses:{units:[CUNIT.intl,CUNIT.eu,CUNIT.us,CUNIT.uk,CUNIT.it,CUNIT.bust],defaults:['eu','uk'],defaultValue:'38',rows:[
+          {intl:'XXS',eu:32,us:0,uk:4,it:36,bust:76},{intl:'XS',eu:34,us:2,uk:6,it:38,bust:80},{intl:'S',eu:36,us:4,uk:8,it:40,bust:84},
+          {intl:'M',eu:38,us:6,uk:10,it:42,bust:88},{intl:'L',eu:40,us:8,uk:12,it:44,bust:92},{intl:'XL',eu:42,us:10,uk:14,it:46,bust:96},{intl:'XXL',eu:44,us:12,uk:16,it:48,bust:100}
+        ]}
+      },
+      children:{
+        general:{units:[CUNIT.age,CUNIT.height,CUNIT.usk,CUNIT.uka],defaults:['height','age'],defaultValue:'128',rows:[
+          {age:'2 y',height:92,usk:'2T',uka:'2 y'},{age:'3 y',height:98,usk:'3T',uka:'3 y'},{age:'4 y',height:104,usk:'4T',uka:'4 y'},
+          {age:'5 y',height:110,usk:'5',uka:'5 y'},{age:'6 y',height:116,usk:'6',uka:'6 y'},{age:'7 y',height:122,usk:'7',uka:'7 y'},
+          {age:'8 y',height:128,usk:'8',uka:'8 y'},{age:'9 y',height:134,usk:'10',uka:'9 y'},{age:'10 y',height:140,usk:'10/12',uka:'10 y'},
+          {age:'11 y',height:146,usk:'12',uka:'11 y'},{age:'12 y',height:152,usk:'14',uka:'12 y'},{age:'13 y',height:158,usk:'14/16',uka:'13 y'},{age:'14 y',height:164,usk:'16',uka:'14 y'}
+        ]}
+      }
+    };
+
+    Object.assign(categories,{
+      shoes:{icon:'👟',type:'table',units:U.shoes,rows:shoeRows,defaults:['eu','uk'],defaultValue:'43'},
+      clothing:{icon:'👕',type:'clothing'},
+      hats:{icon:'🎩',type:'table',units:U.hats,rows:hatRows,defaults:['cm','intl'],defaultValue:'58'},
+      rings:{icon:'💍',type:'table',units:U.rings,rows:ringRows,defaults:['eu','us'],defaultValue:'54.4'},
+      roman:{icon:'🏛️',type:'roman',units:U.roman,defaults:['arabic','roman'],defaultValue:'2026'}
+    });
 
     const unitTranslations = {
       hr: {
@@ -585,10 +786,85 @@
       }
     };
 
-    const state = {language:'en', category:'length', lastEdited:'from'};
-    const els = Object.fromEntries(['categoryStrip','categoryTitle','categoryNote','inputValue','outputValue','fromUnit','toUnit','swapButton','copyButton','clearButton','resultsGrid','equation','languageSelect','infoButton','infoDialog','closeInfo','toast'].map(id=>[id,document.getElementById(id)]));
+    const state = {language:'en', category:'length', lastEdited:'from', clothingProfile:'men', clothingGarment:'tops'};
+    const els = Object.fromEntries(['categoryStrip','categoryTitle','categoryNote','inputValue','outputValue','fromUnit','toUnit','swapButton','copyButton','clearButton','resultsGrid','equation','languageSelect','infoButton','infoDialog','closeInfo','toast','specialControls','profileGroup','profileSelect','profileLabel','garmentGroup','garmentSelect','garmentLabel','comparisonPanel','comparisonTitle','comparisonNote','comparisonHead','comparisonBody'].map(id=>[id,document.getElementById(id)]));
 
     function t(key){ return key.split('.').reduce((obj,k)=>obj?.[k], translations[state.language]) ?? key; }
+
+    function activeCategory(){
+      if(state.category!=='clothing') return categories[state.category];
+      const profile=state.clothingProfile;
+      const garment=profile==='children'?'general':state.clothingGarment;
+      const data=clothingData[profile][garment] || clothingData[profile].tops || clothingData.children.general;
+      return {...categories.clothing,type:'table',...data};
+    }
+    function isSizeCategory(){ return ['shoes','clothing','hats','rings'].includes(state.category); }
+    function normalizeText(value){ return String(value??'').trim().toUpperCase().replace(/\s+/g,' '); }
+    function sizeDisplay(value){
+      if(value===undefined || value===null || value==='') return '—';
+      if(typeof value==='number') return new Intl.NumberFormat(state.language,{maximumFractionDigits:2,useGrouping:false}).format(value);
+      return String(value);
+    }
+    function currentRows(){ return activeCategory().rows || []; }
+    function findSizeRow(value,unitId){
+      const rows=currentRows();
+      if(!rows.length) return null;
+      const numeric=parseNumber(value);
+      const numericColumn=rows.some(r=>typeof r[unitId]==='number');
+      if(numericColumn && Number.isFinite(numeric)){
+        return rows.reduce((best,row)=>{
+          if(typeof row[unitId]!=='number') return best;
+          if(!best) return row;
+          return Math.abs(row[unitId]-numeric)<Math.abs(best[unitId]-numeric)?row:best;
+        },null);
+      }
+      const wanted=normalizeText(value);
+      return rows.find(r=>normalizeText(r[unitId])===wanted) || null;
+    }
+    function romanFromArabic(num){
+      if(!Number.isInteger(num)||num<1||num>3999) return null;
+      const map=[['M',1000],['CM',900],['D',500],['CD',400],['C',100],['XC',90],['L',50],['XL',40],['X',10],['IX',9],['V',5],['IV',4],['I',1]];
+      let out='';
+      for(const [symbol,value] of map){ while(num>=value){ out+=symbol; num-=value; } }
+      return out;
+    }
+    function arabicFromRoman(value){
+      const roman=normalizeText(value);
+      if(!/^[MDCLXVI]+$/.test(roman)) return null;
+      const values={I:1,V:5,X:10,L:50,C:100,D:500,M:1000};
+      let total=0;
+      for(let i=0;i<roman.length;i++){ const cur=values[roman[i]],next=values[roman[i+1]]||0; total+=cur<next?-cur:cur; }
+      if(total<1||total>3999||romanFromArabic(total)!==roman) return null;
+      return total;
+    }
+    function setupSpecialControls(){
+      const clothing=state.category==='clothing';
+      els.specialControls.hidden=!clothing;
+      els.profileGroup.hidden=!clothing;
+      els.garmentGroup.hidden=!clothing || state.clothingProfile==='children';
+      if(!clothing) return;
+      els.profileLabel.textContent=t('profile');
+      els.garmentLabel.textContent=t('garment');
+      els.profileSelect.innerHTML=[['men','men'],['women','women'],['children','children']].map(([v,k])=>`<option value="${v}">${t(k)}</option>`).join('');
+      els.profileSelect.value=state.clothingProfile;
+      const garmentKeys=state.clothingProfile==='women'?['tops','bottoms','dresses']:['tops','bottoms'];
+      if(state.clothingProfile!=='women' && state.clothingGarment==='dresses') state.clothingGarment='tops';
+      els.garmentSelect.innerHTML=garmentKeys.map(k=>`<option value="${k}">${t(k)}</option>`).join('');
+      els.garmentSelect.value=state.clothingGarment;
+    }
+    function setInputMode(){
+      const cat=activeCategory();
+      const from=getUnit(els.fromUnit.value),to=getUnit(els.toUnit.value);
+      const roman=state.category==='roman';
+      const rows=cat.rows||[];
+      const sourceNumeric=!roman && rows.length ? rows.some(r=>typeof r[from?.id]==='number') : !roman;
+      const targetNumeric=!roman && rows.length ? rows.some(r=>typeof r[to?.id]==='number') : !roman;
+      els.inputValue.inputMode=sourceNumeric?'decimal':'text';
+      els.outputValue.inputMode=targetNumeric?'decimal':'text';
+      els.inputValue.autocapitalize=roman?'characters':'off';
+      els.outputValue.autocapitalize=roman?'characters':'off';
+    }
+
     function localize(){
       document.documentElement.lang=state.language;
       document.querySelectorAll('[data-i18n]').forEach(el=>el.textContent=t(el.dataset.i18n));
@@ -600,8 +876,10 @@
       els.closeInfo.setAttribute('aria-label',t('close'));
       els.swapButton.setAttribute('aria-label',t('swap')); els.swapButton.title=t('swap');
       els.copyButton.setAttribute('aria-label',t('copy')); els.copyButton.title=t('copy');
+      els.comparisonTitle.textContent=t('sizeComparison');
+      els.comparisonNote.textContent=t('sizeNote');
       document.title=`${t('appTitle')} | Apps & Games`;
-      renderCategories(); renderCategory(false); convert();
+      setupSpecialControls(); renderCategories(); renderCategory(false); convert();
     }
 
     function renderCategories(){
@@ -616,9 +894,10 @@
     }
 
     function renderCategory(resetUnits=true){
-      const cat=categories[state.category];
+      const cat=activeCategory();
       els.categoryTitle.textContent=`${cat.icon} ${t('categories.'+state.category)}`;
       els.categoryNote.textContent=t(`notes.${state.category}`).startsWith('notes.') ? '' : t(`notes.${state.category}`);
+      setupSpecialControls();
       const oldFrom=els.fromUnit.value, oldTo=els.toUnit.value;
       const options=cat.units.map(u=>`<option value="${u.id}">${unitName(u)} (${u.symbol})</option>`).join('');
       els.fromUnit.innerHTML=options; els.toUnit.innerHTML=options;
@@ -627,9 +906,10 @@
         els.fromUnit.value=cat.units.some(u=>u.id===oldFrom)?oldFrom:cat.defaults[0];
         els.toUnit.value=cat.units.some(u=>u.id===oldTo)?oldTo:cat.defaults[1];
       }
+      setInputMode();
     }
 
-    function setCategory(key){ state.category=key; state.lastEdited='from'; renderCategories(); renderCategory(true); convert('from'); }
+    function setCategory(key){ state.category=key; state.lastEdited='from'; renderCategories(); renderCategory(true); els.inputValue.value=activeCategory().defaultValue ?? '1'; els.outputValue.value=''; convert('from'); }
     function parseNumber(value){ const normalized=String(value).trim().replace(/\s/g,'').replace(',','.'); return normalized===''?NaN:Number(normalized); }
     function formatNumber(value){
       if(!Number.isFinite(value)) return '—';
@@ -639,49 +919,106 @@
       return new Intl.NumberFormat(state.language,{maximumSignificantDigits:12,maximumFractionDigits:10,useGrouping:false}).format(value);
     }
 
-    function getUnit(id){ return categories[state.category].units.find(u=>u.id===id); }
+    function getUnit(id){ return activeCategory().units.find(u=>u.id===id); }
     function unitName(unit){
-      const index=categories[state.category].units.indexOf(unit);
+      if(unit.names?.[state.language]) return unit.names[state.language];
+      const cat=activeCategory();
+      const index=cat.units.indexOf(unit);
       return unitTranslations[state.language]?.[state.category]?.[index] ?? unit.name;
     }
     function calculate(value,from,to){
+      if(activeCategory().type==='table'){
+        const row=findSizeRow(value,from.id);
+        return row ? row[to.id] : null;
+      }
       if(state.category==='fuel' && value===0) return NaN;
       return to.fromBase(from.toBase(value));
     }
 
     function convert(direction=state.lastEdited){
       state.lastEdited=direction;
+      const cat=activeCategory();
       const from=getUnit(els.fromUnit.value); const to=getUnit(els.toUnit.value);
       const sourceElement=direction==='to'?els.outputValue:els.inputValue;
       const targetElement=direction==='to'?els.inputValue:els.outputValue;
       const sourceUnit=direction==='to'?to:from;
       const targetUnit=direction==='to'?from:to;
+
+      if(state.category==='roman'){
+        const raw=String(sourceElement.value).trim();
+        let result=null;
+        if(sourceUnit.id==='arabic' && targetUnit.id==='roman'){
+          const n=parseNumber(raw); result=Number.isInteger(n)?romanFromArabic(n):null;
+        } else if(sourceUnit.id==='roman' && targetUnit.id==='arabic') result=arabicFromRoman(raw);
+        else if(sourceUnit.id==='arabic') { const n=parseNumber(raw); result=Number.isInteger(n)&&n>=1&&n<=3999?n:null; }
+        else { const n=arabicFromRoman(raw); result=n?romanFromArabic(n):null; }
+        if(result===null){ targetElement.value=''; els.equation.textContent=t('invalid')+' · 1–3999'; els.resultsGrid.innerHTML=''; renderComparison(null); return; }
+        targetElement.value=String(result);
+        const left=direction==='to'?String(result):raw.toUpperCase();
+        const right=direction==='to'?raw.toUpperCase():String(result);
+        els.equation.innerHTML=`<strong>${left}</strong> = <strong>${right}</strong>`;
+        els.resultsGrid.innerHTML=''; renderComparison(null); setInputMode(); return;
+      }
+
+      if(cat.type==='table'){
+        const raw=sourceElement.value;
+        const row=findSizeRow(raw,sourceUnit.id);
+        if(!row){ targetElement.value=''; els.equation.textContent=t('invalid'); els.resultsGrid.innerHTML=''; renderComparison(null); return; }
+        const result=row[targetUnit.id];
+        targetElement.value=sizeDisplay(result);
+        const sourceShown=sizeDisplay(row[sourceUnit.id]);
+        const targetShown=sizeDisplay(result);
+        const approx=normalizeText(raw)!==normalizeText(sourceShown)?` <span class="approx-badge">${t('approx')}</span>`:'';
+        els.equation.innerHTML=`<strong>${sourceShown} ${sourceUnit.symbol}</strong> = <strong>${targetShown} ${targetUnit.symbol}</strong>${approx}`;
+        renderQuickResults(row,sourceUnit,targetUnit); renderComparison(row); setInputMode(); return;
+      }
+
       const value=parseNumber(sourceElement.value);
       if(!from||!to||!Number.isFinite(value)){
-        targetElement.value=''; els.equation.textContent=t('invalid'); els.resultsGrid.innerHTML=''; return;
+        targetElement.value=''; els.equation.textContent=t('invalid'); els.resultsGrid.innerHTML=''; renderComparison(null); return;
       }
       const result=calculate(value,sourceUnit,targetUnit); const formatted=formatNumber(result); targetElement.value=formatted;
       const leftValue=direction==='to'?formatted:formatNumber(value);
       const rightValue=direction==='to'?formatNumber(value):formatted;
       els.equation.innerHTML=`<strong>${leftValue} ${from.symbol}</strong> = <strong>${rightValue} ${to.symbol}</strong>`;
-      renderQuickResults(value,sourceUnit,targetUnit);
+      renderQuickResults(value,sourceUnit,targetUnit); renderComparison(null); setInputMode();
     }
 
     function renderQuickResults(value,from,to){
-      const units=categories[state.category].units.filter(u=>u.id!==from.id&&u.id!==to.id).slice(0,6);
+      const cat=activeCategory();
+      const units=cat.units.filter(u=>u.id!==from.id&&u.id!==to.id).slice(0,6);
+      if(cat.type==='table'){
+        els.resultsGrid.innerHTML=units.map(unit=>`<div class="result-chip" title="${unitName(unit)}"><span class="result-number">${sizeDisplay(value[unit.id])}</span><span class="result-unit">${unitName(unit)} · ${unit.symbol}</span></div>`).join('');
+        return;
+      }
       els.resultsGrid.innerHTML=units.map(unit=>`<div class="result-chip" title="${unitName(unit)}"><span class="result-number">${formatNumber(calculate(value,from,unit))}</span><span class="result-unit">${unitName(unit)} · ${unit.symbol}</span></div>`).join('');
+    }
+
+    function renderComparison(selectedRow){
+      const cat=activeCategory();
+      const show=isSizeCategory() && cat.type==='table';
+      els.comparisonPanel.hidden=!show;
+      if(!show){ els.comparisonHead.innerHTML=''; els.comparisonBody.innerHTML=''; return; }
+      els.comparisonTitle.textContent=t('sizeComparison');
+      els.comparisonNote.textContent=t('sizeNote');
+      els.comparisonHead.innerHTML='<tr>'+cat.units.map(u=>`<th>${unitName(u)}<br><span style="color:var(--muted);font-weight:600">${u.symbol}</span></th>`).join('')+'</tr>';
+      if(!selectedRow){ els.comparisonBody.innerHTML=''; return; }
+      const rows=cat.rows; const index=rows.indexOf(selectedRow); const start=Math.max(0,index-1),end=Math.min(rows.length,index+2);
+      els.comparisonBody.innerHTML=rows.slice(start,end).map(row=>`<tr class="${row===selectedRow?'selected-size':''}">${cat.units.map(u=>`<td>${sizeDisplay(row[u.id])}</td>`).join('')}</tr>`).join('');
     }
 
     function showToast(message){ els.toast.textContent=message; els.toast.classList.add('show'); clearTimeout(showToast.timer); showToast.timer=setTimeout(()=>els.toast.classList.remove('show'),1800); }
     els.inputValue.addEventListener('input',()=>convert('from')); els.outputValue.addEventListener('input',()=>convert('to'));
-    els.fromUnit.addEventListener('change',()=>convert()); els.toUnit.addEventListener('change',()=>convert());
+    els.fromUnit.addEventListener('change',()=>{setInputMode();convert();}); els.toUnit.addEventListener('change',()=>{setInputMode();convert();});
+    els.profileSelect.addEventListener('change',()=>{state.clothingProfile=els.profileSelect.value;if(state.clothingProfile!=='women'&&state.clothingGarment==='dresses')state.clothingGarment='tops';renderCategory(true);els.inputValue.value=activeCategory().defaultValue;convert('from');});
+    els.garmentSelect.addEventListener('change',()=>{state.clothingGarment=els.garmentSelect.value;renderCategory(true);els.inputValue.value=activeCategory().defaultValue;convert('from');});
     els.swapButton.addEventListener('click',()=>{
       const unit=els.fromUnit.value; els.fromUnit.value=els.toUnit.value; els.toUnit.value=unit;
       const value=els.inputValue.value; els.inputValue.value=els.outputValue.value; els.outputValue.value=value;
-      state.lastEdited=state.lastEdited==='from'?'to':'from'; convert();
+      state.lastEdited=state.lastEdited==='from'?'to':'from'; setInputMode(); convert();
     });
-    els.clearButton.addEventListener('click',()=>{ els.inputValue.value=''; els.outputValue.value=''; state.lastEdited='from'; convert('from'); els.inputValue.focus(); });
-    els.copyButton.addEventListener('click',async()=>{ if(!els.outputValue.value)return; try{await navigator.clipboard.writeText(`${els.outputValue.value} ${getUnit(els.toUnit.value).symbol}`); showToast(t('copied'));}catch{els.outputValue.select();document.execCommand('copy');showToast(t('copied'));} });
+    els.clearButton.addEventListener('click',()=>{ els.inputValue.value=''; els.outputValue.value=''; state.lastEdited='from'; els.equation.textContent=''; els.resultsGrid.innerHTML=''; renderComparison(null); els.inputValue.focus(); });
+    els.copyButton.addEventListener('click',async()=>{ if(!els.outputValue.value)return; const suffix=state.category==='roman'?'':` ${getUnit(els.toUnit.value).symbol}`; try{await navigator.clipboard.writeText(`${els.outputValue.value}${suffix}`); showToast(t('copied'));}catch{els.outputValue.select();document.execCommand('copy');showToast(t('copied'));} });
     els.languageSelect.addEventListener('change',e=>{state.language=e.target.value; localStorage.setItem('unitConverterLanguage',state.language); localize();});
     els.infoButton.addEventListener('click',()=>els.infoDialog.showModal()); els.closeInfo.addEventListener('click',()=>els.infoDialog.close());
     els.infoDialog.addEventListener('click',e=>{const r=els.infoDialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)els.infoDialog.close();});
