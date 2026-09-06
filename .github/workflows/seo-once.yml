@@ -1,0 +1,76 @@
+name: One-time SEO metadata update
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/seo-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  update-seo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update Unit Converter metadata
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          path = Path("index.html")
+          text = path.read_bytes().decode("utf-8")
+          url = "https://unitconverter.appsandgames.org/"
+
+          text = re.sub(r'<title>.*?</title>', '<title>Unit Converter — 115 Units & Size Conversions | Apps & Games</title>', text, count=1, flags=re.S)
+          text = re.sub(r'<meta\s+name="description"[^>]*>', '<meta name="description" content="Free multilingual unit converter for 115 units across 17 categories, plus clothing, shoe, ring and hat sizes and Roman numerals.">', text, count=1, flags=re.S)
+
+          if f'rel="canonical" href="{url}"' not in text:
+              seo = '''<meta name="robots" content="index, follow">
+          <link rel="canonical" href="https://unitconverter.appsandgames.org/">
+          <meta property="og:type" content="website">
+          <meta property="og:title" content="Unit Converter — 115 Units & Size Conversions">
+          <meta property="og:description" content="Convert everyday, technical and digital units plus international clothing, shoe, ring and hat sizes in five languages.">
+          <meta property="og:url" content="https://unitconverter.appsandgames.org/">
+          <meta property="og:site_name" content="Apps & Games">
+          <meta property="og:image" content="https://appsandgames.org/assets/logo/apps-and-games-logo.png">
+          <meta property="og:image:alt" content="Apps & Games Unit Converter">
+          <meta name="twitter:card" content="summary_large_image">
+          <meta name="twitter:title" content="Unit Converter | Apps & Games">
+          <meta name="twitter:description" content="Free multilingual converter for 115 units, international sizes and Roman numerals.">
+          <meta name="twitter:image" content="https://appsandgames.org/assets/logo/apps-and-games-logo.png">
+          <script type="application/ld+json">
+          {
+            "@context":"https://schema.org",
+            "@type":"WebApplication",
+            "name":"Unit Converter",
+            "url":"https://unitconverter.appsandgames.org/",
+            "description":"A free multilingual browser converter covering 115 units in 17 categories, international sizes and Roman numerals.",
+            "applicationCategory":"UtilitiesApplication",
+            "operatingSystem":"Any",
+            "isAccessibleForFree":true,
+            "inLanguage":["en","hr","de","it","es"],
+            "publisher":{"@type":"Organization","name":"Apps & Games","url":"https://appsandgames.org/"},
+            "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}
+          }
+          </script>
+          '''
+              marker = '<style>'
+              if marker not in text:
+                  raise SystemExit("Style marker not found; no SEO block inserted.")
+              text = text.replace(marker, seo + marker, 1)
+
+          path.write_bytes(text.encode("utf-8"))
+          workflow = Path(".github/workflows/seo-once.yml")
+          if workflow.exists():
+              workflow.unlink()
+      - name: Commit SEO update and remove helper workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet && exit 0
+          git commit -m "SEO: add Unit Converter metadata"
+          git push
