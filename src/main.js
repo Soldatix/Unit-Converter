@@ -283,9 +283,11 @@
     }
 
     let deferredInstallPrompt=null;
+    let installCompleted=localStorage.getItem('unitConverterPwaInstalled')==='1';
     const installRequested=new URLSearchParams(window.location.search).get('install')==='web';
-    const standalone=window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone===true;
-    function updateInstallPanel(){if(!installRequested||standalone){els.installPanel.hidden=true;return;}els.installPanel.hidden=false;els.installMessage.textContent=deferredInstallPrompt?t('installPrompt'):t('installGuide');els.installAppButton.hidden=!deferredInstallPrompt;}
+    const isStandalone=()=>window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone===true;
+    function stripInstallRequest(){const url=new URL(window.location.href);if(url.searchParams.get('install')!=='web')return;url.searchParams.delete('install');const search=url.searchParams.toString();history.replaceState({},'',url.pathname+(search?'?'+search:'')+url.hash);}
+    function updateInstallPanel(){if(!installRequested||isStandalone()||installCompleted){els.installPanel.hidden=true;return;}els.installPanel.hidden=false;els.installMessage.textContent=deferredInstallPrompt?t('installPrompt'):t('installGuide');els.installAppButton.hidden=!deferredInstallPrompt;}
 
     function activeCategory(){
       if(state.category!=='clothing') return categories[state.category];
@@ -534,9 +536,10 @@
     }));
     els.languageSelect.addEventListener('change',e=>{state.language=e.target.value; localStorage.setItem('unitConverterLanguage',state.language); localize();});
     els.themeButton.addEventListener('click',()=>{state.theme=state.theme==='dark'?'light':'dark';localStorage.setItem('unitConverterTheme',state.theme);applyTheme();});
-    window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();deferredInstallPrompt=event;updateInstallPanel();});
-    window.addEventListener('appinstalled',()=>{deferredInstallPrompt=null;els.installPanel.hidden=true;showToast(t('installed'));});
-    els.installAppButton.addEventListener('click',async()=>{if(!deferredInstallPrompt)return;deferredInstallPrompt.prompt();await deferredInstallPrompt.userChoice;deferredInstallPrompt=null;updateInstallPanel();});
+    window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();installCompleted=false;localStorage.removeItem('unitConverterPwaInstalled');deferredInstallPrompt=event;updateInstallPanel();});
+    window.addEventListener('appinstalled',()=>{installCompleted=true;localStorage.setItem('unitConverterPwaInstalled','1');deferredInstallPrompt=null;stripInstallRequest();els.installPanel.hidden=true;showToast(t('installed'));});
+    window.matchMedia('(display-mode: standalone)').addEventListener?.('change',updateInstallPanel);
+    els.installAppButton.addEventListener('click',async()=>{if(!deferredInstallPrompt)return;deferredInstallPrompt.prompt();const choice=await deferredInstallPrompt.userChoice;deferredInstallPrompt=null;if(choice.outcome==='accepted'){installCompleted=true;localStorage.setItem('unitConverterPwaInstalled','1');stripInstallRequest();els.installPanel.hidden=true;}else{updateInstallPanel();}});
     els.dismissInstallButton.addEventListener('click',()=>{els.installPanel.hidden=true;});
     if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));}
     els.infoButton.addEventListener('click',()=>els.infoDialog.showModal()); els.closeInfo.addEventListener('click',()=>els.infoDialog.close());
