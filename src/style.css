@@ -371,6 +371,50 @@
 
     footer { margin-top: 26px; color: #789cad; font-size: .82rem; text-align: center; }
 
+    .theme-button { width: 42px; padding: 0; }
+    .theme-icon { width: 19px; height: 19px; }
+    .theme-icon-moon { display: none; }
+    :root[data-theme="light"] {
+      color-scheme: light;
+      --bg: #f4fbff;
+      --panel: rgba(255,255,255,.9);
+      --panel-2: #eef7fb;
+      --line: rgba(31,83,108,.19);
+      --text: #092235;
+      --muted: #567485;
+      --cyan: #138da8;
+      --cyan-2: #087991;
+      --lime: #648b12;
+      --shadow: 0 24px 70px rgba(35,77,98,.16);
+    }
+    :root[data-theme="light"] .theme-icon-sun { display: none; }
+    :root[data-theme="light"] .theme-icon-moon { display: block; }
+    :root[data-theme="light"] body { background: radial-gradient(circle at 12% 8%, rgba(19,141,168,.12), transparent 31rem), radial-gradient(circle at 90% 92%, rgba(100,139,18,.09), transparent 30rem), var(--bg); }
+    :root[data-theme="light"] .icon-button,
+    :root[data-theme="light"] .language-select { background: rgba(255,255,255,.86); }
+    :root[data-theme="light"] .category-button { background: rgba(255,255,255,.68); }
+    :root[data-theme="light"] .category-button.active { color: #fff; }
+    :root[data-theme="light"] .converter-card { background: linear-gradient(145deg, rgba(255,255,255,.98), rgba(242,249,252,.98)); }
+    :root[data-theme="light"] .value-input { background: rgba(255,255,255,.9); }
+    :root[data-theme="light"] .unit-select { background: #eef7fb; }
+    :root[data-theme="light"] .result-input { color: #587d0d; }
+    :root[data-theme="light"] .copy-button,
+    :root[data-theme="light"] .close-button { background: rgba(9,34,53,.06); }
+    :root[data-theme="light"] .equation { background: rgba(100,139,18,.08); }
+    :root[data-theme="light"] .result-chip,
+    :root[data-theme="light"] .comparison-panel { background: rgba(255,255,255,.72); }
+    :root[data-theme="light"] .special-controls { background: rgba(255,255,255,.58); }
+    :root[data-theme="light"] .size-table { background: rgba(255,255,255,.74); }
+    :root[data-theme="light"] .size-table td { color: #17394a; }
+    :root[data-theme="light"] dialog { background: #f7fcff; }
+    :root[data-theme="light"] .modal-body { color: #17394a; }
+    :root[data-theme="light"] .info-payment-card,
+    :root[data-theme="light"] .wallet { background: rgba(255,255,255,.72); }
+    :root[data-theme="light"] .wallet code { color: #17394a; }
+    :root[data-theme="light"] .info-payment-badges span { background: rgba(238,247,251,.9); }
+    :root[data-theme="light"] .toast { background: #e8f6fb; box-shadow: 0 14px 34px rgba(35,77,98,.18); }
+    :root[data-theme="light"] footer { color: #668596; }
+
     @media (max-width: 760px) {
       .app { width: min(100% - 22px, 680px); }
       header { grid-template-columns: 1fr auto; }

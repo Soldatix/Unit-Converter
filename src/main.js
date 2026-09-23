@@ -15,6 +15,11 @@
     };
 
     Object.entries(extraTranslations).forEach(([language,values])=>Object.assign(translations[language],values));
+    Object.assign(translations.en,{switchLight:'Switch to light theme',switchDark:'Switch to dark theme'});
+    Object.assign(translations.hr,{switchLight:'Prebaci na svijetlu temu',switchDark:'Prebaci na tamnu temu'});
+    Object.assign(translations.de,{switchLight:'Zur hellen Darstellung wechseln',switchDark:'Zur dunklen Darstellung wechseln'});
+    Object.assign(translations.it,{switchLight:'Passa al tema chiaro',switchDark:'Passa al tema scuro'});
+    Object.assign(translations.es,{switchLight:'Cambiar al tema claro',switchDark:'Cambiar al tema oscuro'});
     Object.assign(translations.en.categories,{torque:'Torque',force:'Force',dataRate:'Data transfer rate'});
     Object.assign(translations.hr.categories,{torque:'Okretni moment',force:'Sila',dataRate:'Brzina prijenosa podataka'});
     Object.assign(translations.de.categories,{torque:'Drehmoment',force:'Kraft',dataRate:'Datenübertragungsrate'});
@@ -258,10 +263,19 @@
       }
     };
 
-    const state = {language:'en', category:'length', lastEdited:'from', clothingProfile:'men', clothingGarment:'tops'};
-    const els = Object.fromEntries(['categoryStrip','categoryTitle','categoryNote','inputValue','outputValue','fromUnit','toUnit','swapButton','copyButton','clearButton','resultsGrid','equation','languageSelect','infoButton','infoDialog','closeInfo','toast','specialControls','profileGroup','profileSelect','profileLabel','garmentGroup','garmentSelect','garmentLabel','comparisonPanel','comparisonTitle','comparisonNote','comparisonHead','comparisonBody'].map(id=>[id,document.getElementById(id)]));
+    const state = {language:'en', theme:'dark', category:'length', lastEdited:'from', clothingProfile:'men', clothingGarment:'tops'};
+    const els = Object.fromEntries(['categoryStrip','categoryTitle','categoryNote','inputValue','outputValue','fromUnit','toUnit','swapButton','copyButton','clearButton','resultsGrid','equation','languageSelect','themeButton','infoButton','infoDialog','closeInfo','toast','specialControls','profileGroup','profileSelect','profileLabel','garmentGroup','garmentSelect','garmentLabel','comparisonPanel','comparisonTitle','comparisonNote','comparisonHead','comparisonBody'].map(id=>[id,document.getElementById(id)]));
 
     function t(key){ return key.split('.').reduce((obj,k)=>obj?.[k], translations[state.language]) ?? key; }
+
+    function applyTheme(){
+      document.documentElement.dataset.theme=state.theme;
+      const targetKey=state.theme==='dark'?'switchLight':'switchDark';
+      els.themeButton.setAttribute('aria-label',t(targetKey));
+      els.themeButton.title=t(targetKey);
+      const themeMeta=document.querySelector('meta[name="theme-color"]');
+      if(themeMeta) themeMeta.content=state.theme==='dark'?'#071b2b':'#f4fbff';
+    }
 
     function activeCategory(){
       if(state.category!=='clothing') return categories[state.category];
@@ -346,6 +360,7 @@
       els.fromUnit.setAttribute('aria-label',t('fromUnit'));
       els.toUnit.setAttribute('aria-label',t('toUnit'));
       els.infoButton.setAttribute('aria-label',t('info'));
+      applyTheme();
       els.closeInfo.setAttribute('aria-label',t('close'));
       els.swapButton.setAttribute('aria-label',t('swap')); els.swapButton.title=t('swap');
       els.copyButton.setAttribute('aria-label',t('copy')); els.copyButton.title=t('copy');
@@ -507,8 +522,10 @@
       setTimeout(()=>button.textContent=t('copyWallet'),1000);
     }));
     els.languageSelect.addEventListener('change',e=>{state.language=e.target.value; localStorage.setItem('unitConverterLanguage',state.language); localize();});
+    els.themeButton.addEventListener('click',()=>{state.theme=state.theme==='dark'?'light':'dark';localStorage.setItem('unitConverterTheme',state.theme);applyTheme();});
     els.infoButton.addEventListener('click',()=>els.infoDialog.showModal()); els.closeInfo.addEventListener('click',()=>els.infoDialog.close());
     els.infoDialog.addEventListener('click',e=>{const r=els.infoDialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)els.infoDialog.close();});
     document.getElementById('year').textContent=new Date().getFullYear();
     const savedLanguage=localStorage.getItem('unitConverterLanguage'); if(translations[savedLanguage]) state.language=savedLanguage;
+    const savedTheme=localStorage.getItem('unitConverterTheme'); if(savedTheme==='light'||savedTheme==='dark') state.theme=savedTheme;
     localize();
