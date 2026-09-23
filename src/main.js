@@ -20,6 +20,11 @@
     Object.assign(translations.de,{switchLight:'Zur hellen Darstellung wechseln',switchDark:'Zur dunklen Darstellung wechseln'});
     Object.assign(translations.it,{switchLight:'Passa al tema chiaro',switchDark:'Passa al tema scuro'});
     Object.assign(translations.es,{switchLight:'Cambiar al tema claro',switchDark:'Cambiar al tema oscuro'});
+    Object.assign(translations.en,{installTitle:'Install Unit Converter',installPrompt:'Install this web app for quick access from your device.',installAction:'Install',notNow:'Not now',installGuide:'Use your browser menu and choose Install app or Add to Home Screen.',installed:'Unit Converter is installed.'});
+    Object.assign(translations.hr,{installTitle:'Instaliraj Pretvarač jedinica',installPrompt:'Instaliraj ovu web-aplikaciju za brzi pristup s uređaja.',installAction:'Instaliraj',notNow:'Ne sada',installGuide:'U izborniku preglednika odaberite Instaliraj aplikaciju ili Dodaj na početni zaslon.',installed:'Pretvarač jedinica je instaliran.'});
+    Object.assign(translations.de,{installTitle:'Einheitenumrechner installieren',installPrompt:'Installieren Sie diese Web-App für schnellen Zugriff auf Ihrem Gerät.',installAction:'Installieren',notNow:'Nicht jetzt',installGuide:'Wählen Sie im Browsermenü App installieren oder Zum Startbildschirm hinzufügen.',installed:'Der Einheitenumrechner ist installiert.'});
+    Object.assign(translations.it,{installTitle:'Installa Convertitore di unità',installPrompt:'Installa questa web app per accedervi rapidamente dal dispositivo.',installAction:'Installa',notNow:'Non ora',installGuide:'Nel menu del browser scegli Installa app o Aggiungi alla schermata Home.',installed:'Il Convertitore di unità è installato.'});
+    Object.assign(translations.es,{installTitle:'Instalar Conversor de unidades',installPrompt:'Instala esta aplicación web para acceder rápidamente desde tu dispositivo.',installAction:'Instalar',notNow:'Ahora no',installGuide:'En el menú del navegador elige Instalar aplicación o Añadir a pantalla de inicio.',installed:'El Conversor de unidades está instalado.'});
     Object.assign(translations.en.categories,{torque:'Torque',force:'Force',dataRate:'Data transfer rate'});
     Object.assign(translations.hr.categories,{torque:'Okretni moment',force:'Sila',dataRate:'Brzina prijenosa podataka'});
     Object.assign(translations.de.categories,{torque:'Drehmoment',force:'Kraft',dataRate:'Datenübertragungsrate'});
@@ -264,7 +269,7 @@
     };
 
     const state = {language:'en', theme:'dark', category:'length', lastEdited:'from', clothingProfile:'men', clothingGarment:'tops'};
-    const els = Object.fromEntries(['categoryStrip','categoryTitle','categoryNote','inputValue','outputValue','fromUnit','toUnit','swapButton','copyButton','clearButton','resultsGrid','equation','languageSelect','themeButton','infoButton','infoDialog','closeInfo','toast','specialControls','profileGroup','profileSelect','profileLabel','garmentGroup','garmentSelect','garmentLabel','comparisonPanel','comparisonTitle','comparisonNote','comparisonHead','comparisonBody'].map(id=>[id,document.getElementById(id)]));
+    const els = Object.fromEntries(['categoryStrip','categoryTitle','categoryNote','inputValue','outputValue','fromUnit','toUnit','swapButton','copyButton','clearButton','resultsGrid','equation','languageSelect','themeButton','infoButton','infoDialog','closeInfo','toast','specialControls','profileGroup','profileSelect','profileLabel','garmentGroup','garmentSelect','garmentLabel','comparisonPanel','comparisonTitle','comparisonNote','comparisonHead','comparisonBody','installPanel','installMessage','installAppButton','dismissInstallButton'].map(id=>[id,document.getElementById(id)]));
 
     function t(key){ return key.split('.').reduce((obj,k)=>obj?.[k], translations[state.language]) ?? key; }
 
@@ -276,6 +281,11 @@
       const themeMeta=document.querySelector('meta[name="theme-color"]');
       if(themeMeta) themeMeta.content=state.theme==='dark'?'#071b2b':'#f4fbff';
     }
+
+    let deferredInstallPrompt=null;
+    const installRequested=new URLSearchParams(window.location.search).get('install')==='web';
+    const standalone=window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone===true;
+    function updateInstallPanel(){if(!installRequested||standalone){els.installPanel.hidden=true;return;}els.installPanel.hidden=false;els.installMessage.textContent=deferredInstallPrompt?t('installPrompt'):t('installGuide');els.installAppButton.hidden=!deferredInstallPrompt;}
 
     function activeCategory(){
       if(state.category!=='clothing') return categories[state.category];
@@ -367,6 +377,7 @@
       els.comparisonTitle.textContent=t('sizeComparison');
       els.comparisonNote.textContent=t('sizeNote');
       document.title=`${t('appTitle')} | Apps & Games`;
+      updateInstallPanel();
       setupSpecialControls(); renderCategories(); renderCategory(false); convert();
     }
 
@@ -523,6 +534,11 @@
     }));
     els.languageSelect.addEventListener('change',e=>{state.language=e.target.value; localStorage.setItem('unitConverterLanguage',state.language); localize();});
     els.themeButton.addEventListener('click',()=>{state.theme=state.theme==='dark'?'light':'dark';localStorage.setItem('unitConverterTheme',state.theme);applyTheme();});
+    window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();deferredInstallPrompt=event;updateInstallPanel();});
+    window.addEventListener('appinstalled',()=>{deferredInstallPrompt=null;els.installPanel.hidden=true;showToast(t('installed'));});
+    els.installAppButton.addEventListener('click',async()=>{if(!deferredInstallPrompt)return;deferredInstallPrompt.prompt();await deferredInstallPrompt.userChoice;deferredInstallPrompt=null;updateInstallPanel();});
+    els.dismissInstallButton.addEventListener('click',()=>{els.installPanel.hidden=true;});
+    if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));}
     els.infoButton.addEventListener('click',()=>els.infoDialog.showModal()); els.closeInfo.addEventListener('click',()=>els.infoDialog.close());
     els.infoDialog.addEventListener('click',e=>{const r=els.infoDialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)els.infoDialog.close();});
     document.getElementById('year').textContent=new Date().getFullYear();

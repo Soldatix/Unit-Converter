@@ -34,6 +34,8 @@
   "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}
 }
 </script>
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icons/unit-converter.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/src/style.css">
 
 <meta property="og:image:width" content="1200">
@@ -176,6 +178,7 @@
       </div>
     </div>
   </dialog>
+  <aside class="install-panel" id="installPanel" hidden aria-live="polite"><div><strong data-i18n="installTitle">Install Unit Converter</strong><p id="installMessage" data-i18n="installPrompt">Install this web app for quick access from your device.</p></div><div class="install-actions"><button class="icon-button install-action" id="installAppButton" type="button" data-i18n="installAction">Install</button><button class="clear-button" id="dismissInstallButton" type="button" data-i18n="notNow">Not now</button></div></aside>
   <div class="toast" id="toast" role="status"></div>
 
   <script type="module" src="/src/main.js"></script>

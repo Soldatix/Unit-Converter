@@ -351,6 +351,14 @@
     .wallet-copy { grid-column: 2; grid-row: 1 / 3; min-width: 76px; height: 36px; padding: 0 11px; border: 1px solid rgba(76,215,229,.28); border-radius: 10px; color: var(--cyan); background: rgba(76,215,229,.08); font-weight: 800; font-size: .78rem; }
     .wallet-copy:hover { color: #06212d; background: var(--cyan); }
 
+    .install-panel { position: fixed; right: 22px; bottom: 22px; z-index: 20; width: min(440px, calc(100% - 32px)); padding: 16px; border: 1px solid rgba(76,215,229,.35); border-radius: 18px; color: var(--text); background: var(--panel-2); box-shadow: var(--shadow); }
+    .install-panel[hidden] { display: none; }
+    .install-panel strong { display: block; margin-bottom: 5px; }
+    .install-panel p { margin: 0; color: var(--muted); line-height: 1.45; }
+    .install-actions { display: flex; gap: 8px; margin-top: 12px; }
+    .install-action { min-width: 110px; }
+    :root[data-theme="light"] .install-panel { background: rgba(255,255,255,.96); }
+
     .toast {
       position: fixed;
       left: 50%;
