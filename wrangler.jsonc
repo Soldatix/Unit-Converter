@@ -3,6 +3,6 @@
   "name": "unit-converter",
   "compatibility_date": "2026-09-05",
   "assets": {
-    "directory": "."
+    "directory": "./dist"
   }
 }
