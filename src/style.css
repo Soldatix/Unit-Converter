@@ -401,7 +401,7 @@
     :root[data-theme="light"] .icon-button,
     :root[data-theme="light"] .language-select { background: rgba(255,255,255,.86); }
     :root[data-theme="light"] .category-button { background: rgba(255,255,255,.68); }
-    :root[data-theme="light"] .category-button.active { color: #fff; }
+    :root[data-theme="light"] .category-button.active { color: #fff; border-color: var(--cyan-2); background: linear-gradient(135deg,var(--cyan),var(--cyan-2)); box-shadow: 0 8px 24px rgba(19,141,168,.24); }
     :root[data-theme="light"] .converter-card { background: linear-gradient(145deg, rgba(255,255,255,.98), rgba(242,249,252,.98)); }
     :root[data-theme="light"] .value-input { background: rgba(255,255,255,.9); }
     :root[data-theme="light"] .unit-select { background: #eef7fb; }
