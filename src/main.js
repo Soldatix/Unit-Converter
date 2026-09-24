@@ -284,10 +284,11 @@
 
     let deferredInstallPrompt=null;
     let installCompleted=localStorage.getItem('unitConverterPwaInstalled')==='1';
+    let installDismissed=sessionStorage.getItem('unitConverterInstallDismissed')==='1';
     const installRequested=new URLSearchParams(window.location.search).get('install')==='web';
     const isStandalone=()=>window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone===true;
     function stripInstallRequest(){const url=new URL(window.location.href);if(url.searchParams.get('install')!=='web')return;url.searchParams.delete('install');const search=url.searchParams.toString();history.replaceState({},'',url.pathname+(search?'?'+search:'')+url.hash);}
-    function updateInstallPanel(){if(!installRequested||isStandalone()||installCompleted){els.installPanel.hidden=true;return;}els.installPanel.hidden=false;els.installMessage.textContent=deferredInstallPrompt?t('installPrompt'):t('installGuide');els.installAppButton.hidden=!deferredInstallPrompt;}
+    function updateInstallPanel(){if(!installRequested||isStandalone()||installCompleted||installDismissed){els.installPanel.hidden=true;return;}els.installPanel.hidden=false;els.installMessage.textContent=deferredInstallPrompt?t('installPrompt'):t('installGuide');els.installAppButton.hidden=!deferredInstallPrompt;}
 
     function activeCategory(){
       if(state.category!=='clothing') return categories[state.category];
@@ -540,8 +541,8 @@
     window.addEventListener('appinstalled',()=>{installCompleted=true;localStorage.setItem('unitConverterPwaInstalled','1');deferredInstallPrompt=null;stripInstallRequest();els.installPanel.hidden=true;showToast(t('installed'));});
     window.matchMedia('(display-mode: standalone)').addEventListener?.('change',updateInstallPanel);
     els.installAppButton.addEventListener('click',async()=>{if(!deferredInstallPrompt)return;deferredInstallPrompt.prompt();const choice=await deferredInstallPrompt.userChoice;deferredInstallPrompt=null;if(choice.outcome==='accepted'){installCompleted=true;localStorage.setItem('unitConverterPwaInstalled','1');stripInstallRequest();els.installPanel.hidden=true;}else{updateInstallPanel();}});
-    els.dismissInstallButton.addEventListener('click',()=>{els.installPanel.hidden=true;});
-    if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));}
+    els.dismissInstallButton.addEventListener('click',()=>{installDismissed=true;sessionStorage.setItem('unitConverterInstallDismissed','1');els.installPanel.hidden=true;});
+    if(import.meta.env.PROD && 'serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));}
     els.infoButton.addEventListener('click',()=>els.infoDialog.showModal()); els.closeInfo.addEventListener('click',()=>els.infoDialog.close());
     els.infoDialog.addEventListener('click',e=>{const r=els.infoDialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)els.infoDialog.close();});
     document.getElementById('year').textContent=new Date().getFullYear();
