@@ -1,0 +1,14 @@
+{
+  "id": "/",
+  "name": "Unit Converter",
+  "short_name": "Unit Converter",
+  "description": "A free multilingual unit converter for everyday, technical, digital and size conversions.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#061723",
+  "theme_color": "#071b2b",
+  "categories": ["utilities", "productivity"],
+  "icons": [{"src": "/icons/unit-converter.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable"}]
+}
