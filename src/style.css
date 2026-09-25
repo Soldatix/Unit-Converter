@@ -100,6 +100,17 @@
     .icon-button svg { width: 19px; height: 19px; }
     .language-select { padding: 0 33px 0 12px; min-width: 78px; }
 
+    /* Apps & Games language menu theme bridge */
+    .ag-language-menu {
+      --ag-lang-bg: rgba(14, 48, 69, .72);
+      --ag-lang-hover: #0e3045;
+      --ag-lang-selected: rgba(76, 215, 229, .12);
+      --ag-lang-border: var(--line);
+      --ag-lang-text: var(--text);
+      --ag-lang-muted: var(--muted);
+      --ag-lang-accent: var(--cyan);
+    }
+
     .intro {
       margin: 56px auto 25px;
       text-align: center;
@@ -432,6 +443,12 @@
     :root[data-theme="light"] body { background: radial-gradient(circle at 12% 8%, rgba(19,141,168,.12), transparent 31rem), radial-gradient(circle at 90% 92%, rgba(100,139,18,.09), transparent 30rem), var(--bg); }
     :root[data-theme="light"] .icon-button,
     :root[data-theme="light"] .language-select { background: rgba(255,255,255,.86); }
+    :root[data-theme="light"] .ag-language-menu {
+      --ag-lang-bg: rgba(255,255,255,.86);
+      --ag-lang-hover: #eef7fb;
+      --ag-lang-selected: rgba(19,141,168,.12);
+      --ag-lang-accent: var(--cyan);
+    }
     :root[data-theme="light"] .category-button { background: rgba(255,255,255,.68); }
     :root[data-theme="light"] .category-button.active { color: #fff; border-color: var(--cyan-2); background: linear-gradient(135deg,var(--cyan),var(--cyan-2)); box-shadow: 0 8px 24px rgba(19,141,168,.24); }
     :root[data-theme="light"] .converter-card { background: linear-gradient(145deg, rgba(255,255,255,.98), rgba(242,249,252,.98)); }
