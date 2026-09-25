@@ -1,3 +1,4 @@
+import { enhanceLanguageMenus } from './js/ag-language-menu.js';
     const translations = {
       en: { appTitle:'Unit Converter', info:'Info', language:'Language', instant:'Instant conversion', headline:'Convert without limits.', subhead:'Everyday and technical units in one fast, clear converter.', from:'From', to:'To', clear:'Clear', alsoEquals:'Also equals', copied:'Result copied', invalid:'Enter a valid number', swap:'Swap units', copy:'Copy result', categories:{length:'Length',time:'Time',volume:'Volume',area:'Area',mass:'Mass',power:'Power',data:'Bits & Bytes',energy:'Energy',speed:'Speed',temperature:'Temperature',pressure:'Pressure',fuel:'Fuel consumption',frequency:'Frequency',angle:'Angle'}, notes:{power:'kW and horsepower measure power. kWh is available under Energy.',fuel:'Fuel economy uses inverse conversion; zero cannot be converted.'}},
       hr: { appTitle:'Pretvarač jedinica', info:'Info', language:'Jezik', instant:'Trenutno pretvaranje', headline:'Pretvaraj bez granica.', subhead:'Svakodnevne i tehničke jedinice u jednom brzom i preglednom pretvaraču.', from:'Iz', to:'U', clear:'Obriši', alsoEquals:'Jednako je i', copied:'Rezultat je kopiran', invalid:'Unesite ispravan broj', swap:'Zamijeni jedinice', copy:'Kopiraj rezultat', categories:{length:'Dužina',time:'Vrijeme',volume:'Volumen',area:'Površina',mass:'Masa',power:'Snaga',data:'Bitovi i bajtovi',energy:'Energija',speed:'Brzina',temperature:'Temperatura',pressure:'Tlak',fuel:'Potrošnja goriva',frequency:'Frekvencija',angle:'Kut'}, notes:{power:'kW i konjske snage mjere snagu. kWh se nalazi pod Energija.',fuel:'Potrošnja goriva koristi obrnuti izračun; nula se ne može pretvoriti.'}},
@@ -270,6 +271,7 @@
 
     const state = {language:'en', theme:'dark', category:'length', lastEdited:'from', clothingProfile:'men', clothingGarment:'tops'};
     const els = Object.fromEntries(['categoryStrip','categoryTitle','categoryNote','inputValue','outputValue','fromUnit','toUnit','swapButton','copyButton','clearButton','resultsGrid','equation','languageSelect','themeButton','infoButton','infoDialog','closeInfo','toast','specialControls','profileGroup','profileSelect','profileLabel','garmentGroup','garmentSelect','garmentLabel','comparisonPanel','comparisonTitle','comparisonNote','comparisonHead','comparisonBody','installPanel','installMessage','installAppButton','dismissInstallButton'].map(id=>[id,document.getElementById(id)]));
+    enhanceLanguageMenus();
 
     function t(key){ return key.split('.').reduce((obj,k)=>obj?.[k], translations[state.language]) ?? key; }
 
