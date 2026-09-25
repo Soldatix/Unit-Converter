@@ -20,11 +20,11 @@
     Object.assign(translations.de,{switchLight:'Zur hellen Darstellung wechseln',switchDark:'Zur dunklen Darstellung wechseln'});
     Object.assign(translations.it,{switchLight:'Passa al tema chiaro',switchDark:'Passa al tema scuro'});
     Object.assign(translations.es,{switchLight:'Cambiar al tema claro',switchDark:'Cambiar al tema oscuro'});
-    Object.assign(translations.en,{installTitle:'Install Unit Converter',installPrompt:'Install this web app for quick access from your device.',installAction:'Install',notNow:'Not now',installGuide:'Use your browser menu and choose Install app or Add to Home Screen.',installed:'Unit Converter is installed.'});
-    Object.assign(translations.hr,{installTitle:'Instaliraj Pretvarač jedinica',installPrompt:'Instaliraj ovu web-aplikaciju za brzi pristup s uređaja.',installAction:'Instaliraj',notNow:'Ne sada',installGuide:'U izborniku preglednika odaberite Instaliraj aplikaciju ili Dodaj na početni zaslon.',installed:'Pretvarač jedinica je instaliran.'});
-    Object.assign(translations.de,{installTitle:'Einheitenumrechner installieren',installPrompt:'Installieren Sie diese Web-App für schnellen Zugriff auf Ihrem Gerät.',installAction:'Installieren',notNow:'Nicht jetzt',installGuide:'Wählen Sie im Browsermenü App installieren oder Zum Startbildschirm hinzufügen.',installed:'Der Einheitenumrechner ist installiert.'});
-    Object.assign(translations.it,{installTitle:'Installa Convertitore di unità',installPrompt:'Installa questa web app per accedervi rapidamente dal dispositivo.',installAction:'Installa',notNow:'Non ora',installGuide:'Nel menu del browser scegli Installa app o Aggiungi alla schermata Home.',installed:'Il Convertitore di unità è installato.'});
-    Object.assign(translations.es,{installTitle:'Instalar Conversor de unidades',installPrompt:'Instala esta aplicación web para acceder rápidamente desde tu dispositivo.',installAction:'Instalar',notNow:'Ahora no',installGuide:'En el menú del navegador elige Instalar aplicación o Añadir a pantalla de inicio.',installed:'El Conversor de unidades está instalado.'});
+    Object.assign(translations.en,{installTitle:'Install Unit Converter',installPrompt:'Install this web app for quick access from your device.',installAction:'Install Web App',continueBrowser:'Continue in browser',installWaiting:'Checking whether this browser can install the app…',installReady:'The app is ready to install.',installInstalling:'Installation requested. Complete the browser prompt.',installDismissed:'Installation was cancelled. You can try again by reopening this install page.',installUnavailable:'Automatic installation is not available in this browser. You can continue in the browser and use Install App or Add to Home Screen when available.',installed:'Unit Converter is installed on this device.'});
+    Object.assign(translations.hr,{installTitle:'Instaliraj Pretvarač jedinica',installPrompt:'Instaliraj ovu web-aplikaciju za brzi pristup s uređaja.',installAction:'Instaliraj Web App',continueBrowser:'Nastavi u pregledniku',installWaiting:'Provjerava se podržava li ovaj preglednik instalaciju…',installReady:'Aplikacija je spremna za instalaciju.',installInstalling:'Instalacija je zatražena. Dovršite postupak u poruci preglednika.',installDismissed:'Instalacija je otkazana. Možete pokušati ponovno otvaranjem ove stranice za instalaciju.',installUnavailable:'Automatska instalacija nije dostupna u ovom pregledniku. Nastavite u pregledniku i upotrijebite Instaliraj aplikaciju ili Dodaj na početni zaslon kada je dostupno.',installed:'Pretvarač jedinica je instaliran na ovom uređaju.'});
+    Object.assign(translations.de,{installTitle:'Einheitenumrechner installieren',installPrompt:'Installieren Sie diese Web-App für schnellen Zugriff auf Ihrem Gerät.',installAction:'Web-App installieren',continueBrowser:'Im Browser fortfahren',installWaiting:'Es wird geprüft, ob dieser Browser die Installation unterstützt…',installReady:'Die App ist zur Installation bereit.',installInstalling:'Installation angefordert. Schließen Sie die Browser-Abfrage ab.',installDismissed:'Die Installation wurde abgebrochen. Öffnen Sie diese Installationsseite erneut, um es noch einmal zu versuchen.',installUnavailable:'Die automatische Installation ist in diesem Browser nicht verfügbar. Sie können im Browser fortfahren und, sofern verfügbar, App installieren oder Zum Startbildschirm hinzufügen verwenden.',installed:'Der Einheitenumrechner ist auf diesem Gerät installiert.'});
+    Object.assign(translations.it,{installTitle:'Installa Convertitore di unità',installPrompt:'Installa questa web app per accedervi rapidamente dal dispositivo.',installAction:'Installa Web App',continueBrowser:'Continua nel browser',installWaiting:'Verifica della possibilità di installare l’app in questo browser…',installReady:'L’app è pronta per l’installazione.',installInstalling:'Installazione richiesta. Completa la richiesta del browser.',installDismissed:'L’installazione è stata annullata. Riapri questa pagina di installazione per riprovare.',installUnavailable:'L’installazione automatica non è disponibile in questo browser. Puoi continuare nel browser e usare Installa app o Aggiungi alla schermata Home quando disponibile.',installed:'Il Convertitore di unità è installato su questo dispositivo.'});
+    Object.assign(translations.es,{installTitle:'Instalar Conversor de unidades',installPrompt:'Instala esta aplicación web para acceder rápidamente desde tu dispositivo.',installAction:'Instalar Web App',continueBrowser:'Continuar en el navegador',installWaiting:'Comprobando si este navegador permite instalar la aplicación…',installReady:'La aplicación está lista para instalarse.',installInstalling:'Instalación solicitada. Completa el aviso del navegador.',installDismissed:'La instalación se canceló. Vuelve a abrir esta página de instalación para intentarlo de nuevo.',installUnavailable:'La instalación automática no está disponible en este navegador. Puedes continuar en el navegador y usar Instalar aplicación o Añadir a pantalla de inicio cuando esté disponible.',installed:'El Conversor de unidades está instalado en este dispositivo.'});
     Object.assign(translations.en.categories,{torque:'Torque',force:'Force',dataRate:'Data transfer rate'});
     Object.assign(translations.hr.categories,{torque:'Okretni moment',force:'Sila',dataRate:'Brzina prijenosa podataka'});
     Object.assign(translations.de.categories,{torque:'Drehmoment',force:'Kraft',dataRate:'Datenübertragungsrate'});
@@ -283,12 +283,24 @@
     }
 
     let deferredInstallPrompt=null;
-    let installCompleted=localStorage.getItem('unitConverterPwaInstalled')==='1';
-    let installDismissed=sessionStorage.getItem('unitConverterInstallDismissed')==='1';
-    const installRequested=new URLSearchParams(window.location.search).get('install')==='web';
-    const isStandalone=()=>window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone===true;
+    let installActive=new URLSearchParams(window.location.search).get('install')==='web';
+    const displayMode=window.matchMedia('(display-mode: standalone)');
+    const isStandalone=()=>displayMode.matches || window.navigator.standalone===true;
+    let installState=isStandalone()?'installed':'waiting';
+    let installTimer=null;
     function stripInstallRequest(){const url=new URL(window.location.href);if(url.searchParams.get('install')!=='web')return;url.searchParams.delete('install');const search=url.searchParams.toString();history.replaceState({},'',url.pathname+(search?'?'+search:'')+url.hash);}
-    function updateInstallPanel(){if(!installRequested||isStandalone()||installCompleted||installDismissed){els.installPanel.hidden=true;return;}els.installPanel.hidden=false;els.installMessage.textContent=deferredInstallPrompt?t('installPrompt'):t('installGuide');els.installAppButton.hidden=!deferredInstallPrompt;}
+    function updateInstallPanel(){
+      if(!installActive){els.installPanel.hidden=true;return;}
+      if(isStandalone())installState='installed';
+      const statusKey={waiting:'installWaiting',ready:'installReady',installing:'installInstalling',installed:'installed',dismissed:'installDismissed',unavailable:'installUnavailable'}[installState]||'installUnavailable';
+      els.installPanel.hidden=false;
+      els.installMessage.textContent=t(statusKey);
+      els.installAppButton.textContent=t('installAction');
+      els.dismissInstallButton.textContent=t('continueBrowser');
+      els.installAppButton.hidden=false;
+      els.installAppButton.disabled=installState!=='ready';
+    }
+    function setInstallState(next){installState=next;updateInstallPanel();}
 
     function activeCategory(){
       if(state.category!=='clothing') return categories[state.category];
@@ -537,11 +549,41 @@
     }));
     els.languageSelect.addEventListener('change',e=>{state.language=e.target.value; localStorage.setItem('unitConverterLanguage',state.language); localize();});
     els.themeButton.addEventListener('click',()=>{state.theme=state.theme==='dark'?'light':'dark';localStorage.setItem('unitConverterTheme',state.theme);applyTheme();});
-    window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();installCompleted=false;localStorage.removeItem('unitConverterPwaInstalled');deferredInstallPrompt=event;updateInstallPanel();});
-    window.addEventListener('appinstalled',()=>{installCompleted=true;localStorage.setItem('unitConverterPwaInstalled','1');deferredInstallPrompt=null;stripInstallRequest();els.installPanel.hidden=true;showToast(t('installed'));});
-    window.matchMedia('(display-mode: standalone)').addEventListener?.('change',updateInstallPanel);
-    els.installAppButton.addEventListener('click',async()=>{if(!deferredInstallPrompt)return;deferredInstallPrompt.prompt();const choice=await deferredInstallPrompt.userChoice;deferredInstallPrompt=null;if(choice.outcome==='accepted'){installCompleted=true;localStorage.setItem('unitConverterPwaInstalled','1');stripInstallRequest();els.installPanel.hidden=true;}else{updateInstallPanel();}});
-    els.dismissInstallButton.addEventListener('click',()=>{installDismissed=true;sessionStorage.setItem('unitConverterInstallDismissed','1');els.installPanel.hidden=true;});
+    window.addEventListener('beforeinstallprompt',event=>{
+      if(!installActive)return;
+      event.preventDefault();
+      if(isStandalone()){setInstallState('installed');return;}
+      deferredInstallPrompt=event;
+      clearTimeout(installTimer);
+      setInstallState(typeof event.prompt==='function'?'ready':'unavailable');
+    });
+    window.addEventListener('appinstalled',()=>{deferredInstallPrompt=null;clearTimeout(installTimer);localStorage.setItem('unitConverterPwaInstalled','1');setInstallState('installed');showToast(t('installed'));});
+    displayMode.addEventListener?.('change',()=>{if(isStandalone())setInstallState('installed');});
+    els.installAppButton.addEventListener('click',async()=>{
+      if(!installActive||installState==='installing')return;
+      if(isStandalone()){setInstallState('installed');return;}
+      if(!deferredInstallPrompt||typeof deferredInstallPrompt.prompt!=='function'){setInstallState('unavailable');return;}
+      const prompt=deferredInstallPrompt;
+      setInstallState('installing');
+      try{
+        await prompt.prompt();
+        const choice=await prompt.userChoice;
+        if(isStandalone())setInstallState('installed');
+        else setInstallState(choice?.outcome==='accepted'?'installing':'dismissed');
+      }catch{
+        setInstallState(isStandalone()?'installed':'unavailable');
+      }finally{
+        deferredInstallPrompt=null;
+      }
+    });
+    els.dismissInstallButton.addEventListener('click',()=>{
+      installActive=false;
+      deferredInstallPrompt=null;
+      clearTimeout(installTimer);
+      stripInstallRequest();
+      els.installPanel.hidden=true;
+    });
+    if(installActive&&!isStandalone())installTimer=setTimeout(()=>{if(installState==='waiting')setInstallState('unavailable');},3000);
     if(import.meta.env.PROD && 'serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));}
     els.infoButton.addEventListener('click',()=>els.infoDialog.showModal()); els.closeInfo.addEventListener('click',()=>els.infoDialog.close());
     els.infoDialog.addEventListener('click',e=>{const r=els.infoDialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)els.infoDialog.close();});
