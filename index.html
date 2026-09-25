@@ -76,6 +76,25 @@
       <p data-i18n="subhead">Everyday and technical units in one fast, clear converter.</p>
     </section>
 
+    <aside class="install-panel" id="installPanel" hidden aria-labelledby="installPanelTitle">
+      <div class="install-panel-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 3v11"></path>
+          <path d="m7.5 10 4.5 4.5 4.5-4.5"></path>
+          <path d="M5 18.5h14"></path>
+        </svg>
+      </div>
+      <div class="install-panel-copy">
+        <strong id="installPanelTitle" data-i18n="installTitle">Install Unit Converter</strong>
+        <p class="install-description" data-i18n="installPrompt">Install this web app for quick access from your device.</p>
+        <p class="install-status" id="installMessage" data-i18n="installWaiting" role="status" aria-live="polite">Checking whether this browser can install the app…</p>
+      </div>
+      <div class="install-actions">
+        <button class="icon-button install-action" id="installAppButton" type="button" data-i18n="installAction">Install Web App</button>
+        <button class="clear-button continue-browser-action" id="dismissInstallButton" type="button" data-i18n="continueBrowser">Continue in browser</button>
+      </div>
+    </aside>
+
     <nav class="category-strip" id="categoryStrip" aria-label="Conversion categories"></nav>
 
     <section class="converter-shell" aria-live="polite">
@@ -178,7 +197,6 @@
       </div>
     </div>
   </dialog>
-  <aside class="install-panel" id="installPanel" hidden aria-live="polite"><div><strong data-i18n="installTitle">Install Unit Converter</strong><p id="installMessage" data-i18n="installPrompt">Install this web app for quick access from your device.</p></div><div class="install-actions"><button class="icon-button install-action" id="installAppButton" type="button" data-i18n="installAction">Install</button><button class="clear-button" id="dismissInstallButton" type="button" data-i18n="notNow">Not now</button></div></aside>
   <div class="toast" id="toast" role="status"></div>
 
   <script type="module" src="/src/main.js"></script>
