@@ -36,7 +36,7 @@ function installStyles() {
     '.ag-language-menu.align-right .ag-language-options{right:0;left:auto}',
     '.ag-language-menu.align-left .ag-language-options{left:0;right:auto}',
     '.ag-language-option{min-width:180px;min-height:40px;display:grid;grid-template-columns:24px 30px minmax(0,1fr);align-items:center;gap:8px;padding:7px 10px;border:0;border-radius:8px;background:transparent;color:var(--ag-lang-text,var(--text,#18233b));font:inherit;text-align:left;cursor:pointer}',
-    '.ag-language-option:hover,.ag-language-option:focus-visible{outline:none;background:var(--ag-lang-hover,var(--surface-2,var(--input,#f7f9fd)))}',
+    '.ag-language-option:hover,.ag-language-option:focus-visible{outline:none;background:var(--ag-lang-hover,var(--surface-2,var(--input,var(--panel-2,#f7f9fd))))}',
     '.ag-language-option:focus-visible{box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--ag-lang-accent,var(--primary,var(--cyan,var(--blue,#2667ff)))) 38%,transparent)}',
     '.ag-language-option.selected{background:var(--ag-lang-selected,color-mix(in srgb,var(--ag-lang-accent,var(--primary,var(--cyan,var(--blue,#2667ff)))) 12%,var(--ag-lang-bg,var(--surface,var(--panel,#fff)))));color:var(--ag-lang-accent,var(--primary,var(--cyan,var(--blue,#2667ff))));font-weight:750}',
     '@media(max-width:590px){.ag-language-button{min-width:148px;min-height:38px;padding:6px 30px 6px 8px;gap:7px;font-size:.82rem}.ag-language-option{min-width:170px;grid-template-columns:22px 28px minmax(0,1fr)}.ag-language-flag{width:22px;height:15px;flex-basis:22px}}',
