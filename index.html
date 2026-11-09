@@ -37,6 +37,8 @@
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/icons/unit-converter.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/src/style.css">
+<link rel="stylesheet" href="https://appsandgames.org/privacy-choice.css">
+<script defer src="https://appsandgames.org/privacy-choice.js"></script>
 
 <meta property="og:image:width" content="1200">
 
@@ -159,7 +161,18 @@
         </table>
       </div>
     </section>
-    <footer>© <span id="year"></span> Apps &amp; Games</footer>
+    <!-- Dedicated original Adsterra slot outside all converter controls/results. -->
+    <section id="unit-ad-area" aria-label="Advertisement" hidden>
+      <div class="unit-ad-slot" data-size="728x90" hidden>
+        <script src="/unit-adsterra-loader.js" data-unit="desktop"></script>
+      </div>
+      <div class="unit-ad-slot" data-size="320x50" hidden>
+        <script src="/unit-adsterra-loader.js" data-unit="mobile"></script>
+      </div>
+    </section>
+    <footer class="footer-links unit-privacy-footer">
+      © <span id="year"></span> Apps &amp; Games
+    </footer>
   </main>
 
   <dialog id="infoDialog">
